@@ -84,7 +84,7 @@ public static unsafe class CriLayla
             while (writePtr >= minAddr) // Check if we're done writing from end
             {
                 // Check for 1 bit compression flag.
-                if (GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 1) > 0)
+                if (GetNextBit(ref compressedDataPtr, ref bitsTillNextByte) > 0)
                 {
                     int offset = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 13) + MinCopyLength;
                     int length = MinCopyLength;
@@ -131,6 +131,27 @@ public static unsafe class CriLayla
 
             return result;
         }
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static byte GetNextBit(ref byte* compressedDataPtr, ref int bitsLeft)
+    {
+        // Reads a single bit.
+        byte currentByte;
+
+        if (bitsLeft != 0)
+        {
+            currentByte = *(compressedDataPtr + 1);
+        }
+        else
+        {
+            currentByte = *compressedDataPtr;
+            bitsLeft = 8;
+            compressedDataPtr--;
+        }
+
+        bitsLeft--;
+        return (byte)((currentByte >> bitsLeft) & 1);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

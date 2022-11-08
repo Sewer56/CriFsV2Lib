@@ -159,11 +159,10 @@ public static unsafe class CriLayla
     {
         // Reads bits, and advances stream backwards.
         ushort outBits = 0;
-        int numBitsProduced = 0;
         int bitsThisRound;
         byte currentByte = *(compressedDataPtr + 1);
         
-        while (numBitsProduced < bitCount)
+        do
         {
             if (bitsLeft == 0)
             {
@@ -171,18 +170,15 @@ public static unsafe class CriLayla
                 bitsLeft = 8;
                 compressedDataPtr--;
             }
-
-            if (bitsLeft > (bitCount - numBitsProduced))
-                bitsThisRound = bitCount - numBitsProduced;
-            else
-                bitsThisRound = bitsLeft;
-
+            
+            bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
             outBits <<= bitsThisRound;
             outBits |= (ushort)((ushort)(currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1));
 
+            bitCount -= bitsThisRound;
             bitsLeft -= bitsThisRound;
-            numBitsProduced += bitsThisRound;
         }
+        while (bitCount > 0);
 
         return outBits;
     }

@@ -93,7 +93,7 @@ public static unsafe class CriLayla
                     // Read variable length.
                     for (vleLevel = 0; vleLevel < vleLengths.Length; vleLevel++)
                     {
-                        int thisLevel = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, vleLengths[vleLevel]);
+                        int thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, vleLengths[vleLevel]);
                         length += thisLevel;
                         
                         // (1 << vleLengths[vleLevel]) - 1) is max possible value for this level.
@@ -108,7 +108,7 @@ public static unsafe class CriLayla
                         int this_level;
                         do
                         {
-                            this_level = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 8);
+                            this_level = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 8);
                             length += this_level;
                         } 
                         while (this_level == byte.MaxValue); // 0b11111111
@@ -124,7 +124,7 @@ public static unsafe class CriLayla
                 else
                 {
                     // verbatim byte
-                    *writePtr = (byte)GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 8);
+                    *writePtr = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 8);
                     writePtr--;
                 }
             }
@@ -158,7 +158,7 @@ public static unsafe class CriLayla
     private static ushort GetNextBits(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
     {
         // Reads bits, and advances stream backwards.
-        ushort outBits = 0;
+        int outBits = 0;
         int bitsThisRound;
         byte currentByte = *(compressedDataPtr + 1);
         
@@ -173,13 +173,51 @@ public static unsafe class CriLayla
             
             bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
             outBits <<= bitsThisRound;
-            outBits |= (ushort)((ushort)(currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1));
+            outBits |= (currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1);
 
             bitCount -= bitsThisRound;
             bitsLeft -= bitsThisRound;
         }
         while (bitCount > 0);
 
-        return outBits;
+        return (ushort)outBits;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static byte ReadMax8(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
+    {
+        // Reads bits, and advances stream backwards.
+        byte currentByte;
+        
+        // Read first set.
+        if (bitsLeft != 0)
+        {
+            currentByte = *(compressedDataPtr + 1);
+        }
+        else
+        {
+            currentByte = *compressedDataPtr;
+            bitsLeft = 8;
+            compressedDataPtr--;
+        }
+        
+        int bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
+        int result = (currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1);
+        
+        bitCount -= bitsThisRound;
+        bitsLeft -= bitsThisRound;
+        if (bitCount <= 0)
+            return (byte)result;
+        
+        // This path can only be followed if bitsleft == 0
+        currentByte = *compressedDataPtr;
+        bitsLeft = 8;
+        compressedDataPtr--;
+        
+        // If there are more to read from next byte.
+        result <<= bitCount;
+        result |= (currentByte >> (bitsLeft - bitCount)) & ((1 << bitCount) - 1);
+        bitsLeft -= bitCount;
+        return (byte)result;
     }
 }

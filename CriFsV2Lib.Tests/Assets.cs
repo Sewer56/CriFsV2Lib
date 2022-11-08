@@ -7,5 +7,6 @@ public static class Assets
     public static string SampleCpkFile = $"{AssetsFolder}/SampleData.cpk";
     public static string SampleCompressedTextFile = $"{AssetsFolder}/CompressedText.crilayla";
     public static string SampleCompressedModelFile = $"{AssetsFolder}/Compressed3dModel.crilayla";
-    public static string SampleUncompressedFile = $"{AssetsFolder}/SampleData/Text-Compressed.txt";
+    public static string SampleUncompressedTextFile = $"{AssetsFolder}/SampleData/Text-Compressed.txt";
+    public static string SampleUncompressedModelFile = $"{AssetsFolder}/Uncompressed3DModel.dff";
 }

@@ -79,22 +79,21 @@ public static unsafe class CriLayla
             
             // Bitstream State
             byte* compressedDataPtr = uncompressedDataPtr - 1;
-            byte currentCompByte = 0; // Current read byte.
             int bitsTillNextByte = 0; // Bits left in the bitstream.
             
             while (writePtr >= minAddr) // Check if we're done writing from end
             {
                 // Check for 1 bit compression flag.
-                if (GetNextBits(ref compressedDataPtr, ref currentCompByte, ref bitsTillNextByte, 1) > 0)
+                if (GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 1) > 0)
                 {
-                    int offset = GetNextBits(ref compressedDataPtr, ref currentCompByte, ref bitsTillNextByte, 13) + MinCopyLength;
+                    int offset = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 13) + MinCopyLength;
                     int length = MinCopyLength;
                     int vleLevel;
 
                     // Read variable length.
                     for (vleLevel = 0; vleLevel < vleLengths.Length; vleLevel++)
                     {
-                        int thisLevel = GetNextBits(ref compressedDataPtr, ref currentCompByte, ref bitsTillNextByte, vleLengths[vleLevel]);
+                        int thisLevel = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, vleLengths[vleLevel]);
                         length += thisLevel;
                         
                         // (1 << vleLengths[vleLevel]) - 1) is max possible value for this level.
@@ -109,7 +108,7 @@ public static unsafe class CriLayla
                         int this_level;
                         do
                         {
-                            this_level = GetNextBits(ref compressedDataPtr, ref currentCompByte, ref bitsTillNextByte, 8);
+                            this_level = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 8);
                             length += this_level;
                         } 
                         while (this_level == byte.MaxValue); // 0b11111111
@@ -125,7 +124,7 @@ public static unsafe class CriLayla
                 else
                 {
                     // verbatim byte
-                    *writePtr = (byte)GetNextBits(ref compressedDataPtr, ref currentCompByte, ref bitsTillNextByte, 8);
+                    *writePtr = (byte)GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 8);
                     writePtr--;
                 }
             }
@@ -134,13 +133,14 @@ public static unsafe class CriLayla
         }
     }
     
-    private static ushort GetNextBits(ref byte* compressedDataPtr, ref byte currentByte, ref int bitsLeft, int bitCount)
+    private static ushort GetNextBits(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
     {
         // Reads bits, and advances stream backwards.
         ushort outBits = 0;
         int numBitsProduced = 0;
         int bitsThisRound;
-
+        byte currentByte = *(compressedDataPtr + 1);
+        
         while (numBitsProduced < bitCount)
         {
             if (bitsLeft == 0)

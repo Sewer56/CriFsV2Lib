@@ -86,7 +86,7 @@ public static unsafe class CriLayla
                 // Check for 1 bit compression flag.
                 if (GetNextBit(ref compressedDataPtr, ref bitsTillNextByte) > 0)
                 {
-                    int offset = GetNextBits(ref compressedDataPtr, ref bitsTillNextByte, 13) + MinCopyLength;
+                    int offset = Read13(ref compressedDataPtr, ref bitsTillNextByte) + MinCopyLength;
                     int length = MinCopyLength;
                     int vleLevel;
 
@@ -139,6 +139,7 @@ public static unsafe class CriLayla
         // Reads a single bit.
         byte currentByte;
 
+        // Note: having if/else rather than single if generated faster runtime despite larger codegen.
         if (bitsLeft != 0)
         {
             currentByte = *(compressedDataPtr + 1);
@@ -155,32 +156,57 @@ public static unsafe class CriLayla
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ushort GetNextBits(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
+    private static int Read13(ref byte* compressedDataPtr, ref int bitsLeft)
     {
         // Reads bits, and advances stream backwards.
-        int outBits = 0;
-        int bitsThisRound;
-        byte currentByte = *(compressedDataPtr + 1);
+        int bitCount = 13;
+        byte currentByte;
         
-        do
+        // Read first set.
+        if (bitsLeft != 0)
         {
-            if (bitsLeft == 0)
-            {
-                currentByte = *compressedDataPtr;
-                bitsLeft = 8;
-                compressedDataPtr--;
-            }
-            
-            bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
-            outBits <<= bitsThisRound;
-            outBits |= (currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1);
-
-            bitCount -= bitsThisRound;
-            bitsLeft -= bitsThisRound;
+            currentByte = *(compressedDataPtr + 1);
         }
-        while (bitCount > 0);
-
-        return (ushort)outBits;
+        else
+        {
+            currentByte = *compressedDataPtr;
+            bitsLeft = 8;
+            compressedDataPtr--;
+        }
+        
+        int bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
+        int result = (currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1);
+        bitCount -= bitsThisRound;
+        
+        // bitsleft == 0 is guaranteed, so we reset to 8
+        currentByte = *compressedDataPtr;
+        bitsLeft = 8;
+        compressedDataPtr--;
+        
+        // Read more from next byte.
+        bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
+        result <<= bitsThisRound;
+        result |= (currentByte >> (bitsLeft - bitsThisRound)) & ((1 << bitsThisRound) - 1);
+        
+        bitCount -= bitsThisRound;
+        
+        // It's possible, we might need 3 reads in some cases so we keep unrolling
+        if (bitCount <= 0)
+        {
+            bitsLeft -= bitsThisRound;
+            return result;
+        }
+        
+        // Read byte if needed
+        currentByte = *compressedDataPtr;
+        bitsLeft = 8;
+        compressedDataPtr--;
+        
+        // If there are more to read from next byte.
+        result <<= bitCount;
+        result |= (currentByte >> (bitsLeft - bitCount)) & ((1 << bitCount) - 1);
+        bitsLeft -= bitCount;
+        return result;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -189,7 +215,7 @@ public static unsafe class CriLayla
         // Reads bits, and advances stream backwards.
         byte currentByte;
         
-        // Read first set.
+        // Note: having if/else rather than single if generated faster runtime despite larger codegen.
         if (bitsLeft != 0)
         {
             currentByte = *(compressedDataPtr + 1);

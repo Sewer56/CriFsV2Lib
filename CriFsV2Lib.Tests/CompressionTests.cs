@@ -8,7 +8,7 @@ public unsafe class CompressionTests
     [Fact]
     public void DecompressesCorrectly()
     {
-        var data = File.ReadAllBytes(Assets.SampleCompressedFile);
+        var data = File.ReadAllBytes(Assets.SampleCompressedTextFile);
         var unmodifiedData = File.ReadAllBytes(Assets.SampleUncompressedFile);
         fixed (byte* dataPtr = data)
         {

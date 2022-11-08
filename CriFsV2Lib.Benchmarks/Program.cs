@@ -3,5 +3,5 @@
 using BenchmarkDotNet.Running;
 using CriFsV2Lib.Benchmarks;
 
-BenchmarkRunner.Run<Decompression>();
-Console.WriteLine("Hello, World!");
+BenchmarkRunner.Run<Decompression_Model>();
+BenchmarkRunner.Run<Decompression_Text>();

@@ -6,7 +6,7 @@ using FileEmulationFramework.Tests;
 namespace CriFsV2Lib.Benchmarks;
 
 [MemoryDiagnoser]
-public unsafe class Decompression
+public unsafe class Decompression_Text
 {
     private byte[] _data;
     private byte* _dataPtr;
@@ -15,7 +15,7 @@ public unsafe class Decompression
     [GlobalSetup]
     public void Setup()
     {
-        _data = File.ReadAllBytes(Assets.SampleCompressedFile);
+        _data = File.ReadAllBytes(Assets.SampleCompressedTextFile);
         _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
         _dataPtr = (byte*)_handle.AddrOfPinnedObject();
     }
@@ -27,14 +27,14 @@ public unsafe class Decompression
         _data = null;
     }
 
-    //[Benchmark(Baseline = true)]
-    public byte[] CriPakToolsDecompressLayla()
+    [Benchmark(Baseline = true)]
+    public byte[] CriPak()
     {
         return CriPakToolsCriLayla.DecompressLegacyCRI(_data, _data.Length);
     }
     
     [Benchmark]
-    public byte[] CriFsLibDecompressLayla()
+    public byte[] CriFsLib()
     {
         return Compression.CriLayla.Decompress(_dataPtr);
     }

@@ -133,6 +133,7 @@ public static unsafe class CriLayla
         }
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ushort GetNextBits(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
     {
         // Reads bits, and advances stream backwards.

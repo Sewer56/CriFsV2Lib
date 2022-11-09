@@ -7,4 +7,9 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Encryption" />
+      <Folder Include="Structs" />
+    </ItemGroup>
+
 </Project>

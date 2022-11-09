@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using CriFsV2Lib.Encryption;
 using CriFsV2Lib.Tests.Reference;
@@ -16,7 +16,7 @@ public unsafe class DecryptTable
     [GlobalSetup]
     public void Setup()
     {
-        _data = File.ReadAllBytes(Assets.SampleCompressedTextFile);
+        _data = new byte[1024 * 1024 * 2]; // 2MB
         _handle = GCHandle.Alloc(_data, GCHandleType.Pinned);
         _dataPtr = (byte*)_handle.AddrOfPinnedObject();
     }

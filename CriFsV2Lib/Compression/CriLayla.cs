@@ -259,12 +259,11 @@ public static unsafe class CriLayla
         {
             // We must split between 2 reads.
             int extraBitCount = 8 - bitsLeft;
-            int result = *(compressedDataPtr + 1) & ((1 << bitsLeft) - 1);
-            result <<= extraBitCount;
-            result |= (*(compressedDataPtr) >> (8 - extraBitCount)) & ((1 << extraBitCount) - 1);
+            int high = *(compressedDataPtr + 1) & ((1 << bitsLeft) - 1);
+            var low = (*(compressedDataPtr) >> (8 - extraBitCount)) & ((1 << extraBitCount) - 1);
             
             // If there are more to read from next byte.
-            return (byte)result;
+            return (byte)(high << extraBitCount | low);
         }
 
         return *(compressedDataPtr);

@@ -72,9 +72,6 @@ public static unsafe class CriLayla
             byte* uncompressedDataPtr = input + uncompHeaderOffset + 0x10;
             Unsafe.CopyBlockUnaligned(resultPtr, uncompressedDataPtr, UncompressedDataSize);
             
-            // VLE as in 'Variable Length'
-            Span<nint> vleLengths = stackalloc nint[] { 2, 3, 5, 8 };
-            
             // Pointer to which we're copying data to.
             byte* writePtr = resultPtr + UncompressedDataSize + uncompSizeOfCompData - 1;
             byte* minAddr = resultPtr + UncompressedDataSize;
@@ -90,30 +87,31 @@ public static unsafe class CriLayla
                 {
                     int offset = Read13(ref compressedDataPtr, ref bitsTillNextByte) + MinCopyLength;
                     int length = MinCopyLength;
-                    int vleLevel;
 
-                    // Read variable length.
-                    for (vleLevel = 0; vleLevel < vleLengths.Length; vleLevel++)
+                    // Read variable fibonnaci length (unrolled).
+                    int thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 2);
+                    length += thisLevel;
+
+                    if (thisLevel == ((1 << 2) - 1))
                     {
-                        int thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, (int)vleLengths[vleLevel]);
+                        thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 3);
                         length += thisLevel;
                         
-                        // (1 << vleLengths[vleLevel]) - 1) is max possible value for this level.
-                        // If we didn't add max value, read some more!
-                        if (thisLevel != ((1 << (int)vleLengths[vleLevel]) - 1)) 
-                            break;
-                    }
-
-                    // If copy length is larger than available lengths then keep reading length until not fully taken (byte.MaxValue)
-                    if (vleLevel == vleLengths.Length)
-                    {
-                        int this_level;
-                        do
+                        if (thisLevel == ((1 << 3) - 1))
                         {
-                            this_level = Read8(ref compressedDataPtr, ref bitsTillNextByte);
-                            length += this_level;
-                        } 
-                        while (this_level == byte.MaxValue); // 0b11111111
+                            thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 5);
+                            length += thisLevel;
+                            
+                            if (thisLevel == ((1 << 5) - 1))
+                            {
+                                do
+                                {
+                                    thisLevel = Read8(ref compressedDataPtr, ref bitsTillNextByte);
+                                    length += thisLevel;
+                                } 
+                                while (thisLevel == byte.MaxValue); // 0b11111111
+                            }
+                        }
                     }
 
                     // LZ77 Copy Below.

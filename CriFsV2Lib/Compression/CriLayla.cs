@@ -79,7 +79,7 @@ public static unsafe class CriLayla
             byte* minAddr = resultPtr + UncompressedDataSize;
             
             // Bitstream State
-            byte* compressedDataPtr = uncompressedDataPtr - 1;
+            byte* compressedDataPtr = uncompressedDataPtr;
             int bitsTillNextByte = 0; // Bits left in the bitstream.
             
             while (writePtr >= minAddr) // Check if we're done writing from end
@@ -184,13 +184,13 @@ public static unsafe class CriLayla
         // Note: having if/else rather than single if generated faster runtime despite larger codegen.
         if (bitsLeft != 0)
         {
-            currentByte = *(compressedDataPtr + 1);
+            currentByte = *(compressedDataPtr);
         }
         else
         {
-            currentByte = *compressedDataPtr;
-            bitsLeft = 8;
             compressedDataPtr--;
+            currentByte = *(compressedDataPtr);
+            bitsLeft = 8;
         }
 
         bitsLeft--;
@@ -207,13 +207,13 @@ public static unsafe class CriLayla
         // Read first set.
         if (bitsLeft != 0)
         {
-            currentByte = *(compressedDataPtr + 1);
+            currentByte = *(compressedDataPtr);
         }
         else
         {
-            currentByte = *compressedDataPtr;
-            bitsLeft = 8;
             compressedDataPtr--;
+            currentByte = *(compressedDataPtr);
+            bitsLeft = 8;
         }
         
         int bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
@@ -221,9 +221,9 @@ public static unsafe class CriLayla
         bitCount -= bitsThisRound;
         
         // bitsleft == 0 is guaranteed, so we reset to 8
-        currentByte = *compressedDataPtr;
         bitsLeft = 8;
         compressedDataPtr--;
+        currentByte = *compressedDataPtr;
         
         // Read more from next byte.
         bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
@@ -240,9 +240,9 @@ public static unsafe class CriLayla
         }
         
         // Read byte if needed
-        currentByte = *compressedDataPtr;
         bitsLeft = 8;
         compressedDataPtr--;
+        currentByte = *(compressedDataPtr);
         
         // If there are more to read from next byte.
         result <<= bitCount;
@@ -259,15 +259,15 @@ public static unsafe class CriLayla
         {
             // We must split between 2 reads.
             int extraBitCount = 8 - bitsLeft;
-            int result = *(compressedDataPtr + 2) & ((1 << bitsLeft) - 1);
+            int result = *(compressedDataPtr + 1) & ((1 << bitsLeft) - 1);
             result <<= extraBitCount;
-            result |= (*(compressedDataPtr + 1) >> (8 - extraBitCount)) & ((1 << extraBitCount) - 1);
+            result |= (*(compressedDataPtr) >> (8 - extraBitCount)) & ((1 << extraBitCount) - 1);
             
             // If there are more to read from next byte.
             return (byte)result;
         }
 
-        return *(compressedDataPtr + 1);
+        return *(compressedDataPtr);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -279,13 +279,13 @@ public static unsafe class CriLayla
         // Note: having if/else rather than single if generated faster runtime despite larger codegen.
         if (bitsLeft != 0)
         {
-            currentByte = *(compressedDataPtr + 1);
+            currentByte = *(compressedDataPtr);
         }
         else
         {
-            currentByte = *compressedDataPtr;
-            bitsLeft = 8;
             compressedDataPtr--;
+            currentByte = *(compressedDataPtr);
+            bitsLeft = 8;
         }
         
         int bitsThisRound = bitsLeft > bitCount ? bitCount : bitsLeft;
@@ -297,9 +297,9 @@ public static unsafe class CriLayla
             return (byte)result;
         
         // This path can only be followed if bitsleft == 0
-        currentByte = *compressedDataPtr;
-        bitsLeft = 8;
         compressedDataPtr--;
+        currentByte = *(compressedDataPtr);
+        bitsLeft = 8;
         
         // If there are more to read from next byte.
         result <<= bitCount;

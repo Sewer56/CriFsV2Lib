@@ -89,7 +89,7 @@ public static unsafe class CriLayla
                     int length = MinCopyLength;
 
                     // Read variable fibonnaci length (unrolled).
-                    int thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 2);
+                    int thisLevel = Read2(ref compressedDataPtr, ref bitsTillNextByte);
                     length += thisLevel;
 
                     if (thisLevel == ((1 << 2) - 1))
@@ -268,6 +268,32 @@ public static unsafe class CriLayla
         return *(compressedDataPtr);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static byte Read2(ref byte* compressedDataPtr, ref int bitsLeft)
+    {
+        const int bitCount = 2;
+        
+        // Note: Fast/Common Path.
+        bool hasNewBits = bitsLeft == 0;
+        if (bitsLeft >= bitCount || hasNewBits)
+        {
+            // Branchless Programming
+            bitsLeft += (Unsafe.As<bool, byte>(ref hasNewBits) * 8) - bitCount;
+            compressedDataPtr -= (Unsafe.As<bool, byte>(ref hasNewBits));
+            
+            // We removed from bitsLeft above, so we don't subtract here. This is necessary because branchless.
+            return (byte)((*(compressedDataPtr) >> (bitsLeft)) & 0b11);;
+        }
+
+        // Only possible scenario is if bitsLeft == 1
+        // bitsLeft == 0 & bitsLeft == 2 will take fast path.
+        int high = *(compressedDataPtr) & 1;
+        int low =  (*(compressedDataPtr - 1) >> 7) & 1; // derived from ReadMax8's, simplified
+        bitsLeft = 7; // Guaranteed
+        compressedDataPtr--;
+        return (byte)(high << 1 | low);
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte ReadMax8(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
     {

@@ -25,6 +25,7 @@ public static unsafe class TableDecryptor
         const int xorMultiplier8 = unchecked(xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier);
         const int unrollFactor = 8;
 
+        // Note: Could probably do even faster with SSE/AVX but for now I'm satisfied.
         long xor = 0x0000655f;
         int numLoops  = length / unrollFactor;
         
@@ -33,21 +34,45 @@ public static unsafe class TableDecryptor
             // Repeat unrollFactor times
             int offset = x * unrollFactor;
             long value = *(long*)(input + offset);
-            var xor1 = (xor & 0xff);
-            var xor2 = ((xor * xorMultiplier) & 0xff) << 8;
-            var xor3 = ((xor * xorMultiplier2) & 0xff) << 16;
-            var xor4 = ((xor * xorMultiplier3) & 0xff) << 24;
-            var xor5 = ((xor * xorMultiplier4) & 0xff) << 32;
-            var xor6 = ((xor * xorMultiplier5) & 0xff) << 40;
-            var xor7 = ((xor * xorMultiplier6) & 0xff) << 48;
-            var xor8 = ((xor * xorMultiplier7) & 0xff) << 56;
             
-            value ^= (xor1 | xor2 | xor3 | xor4 | xor5 | xor6 | xor7 | xor8);
-            *(long*)(input + offset) = value;
+            // Init multiple registers
+            long a = xor;
+            long b = xor * xorMultiplier;
+            long c = xor * xorMultiplier2;
+            long d = xor * xorMultiplier3;
+            long e = xor * xorMultiplier4;
+            long f = xor * xorMultiplier5;
+            long g = xor * xorMultiplier6; 
+            long h = xor * xorMultiplier7;
+            
+            // AND all registers
+            a &= 0xff; b &= 0xff; c &= 0xff; d &= 0xff; e &= 0xff; f &= 0xff; g &= 0xff; h &= 0xff;
+            
+            // Shift all registers
+            b <<= 8; 
+            c <<= 16;
+            d <<= 24; 
+            e <<= 32;
+            f <<= 40;
+            g <<= 48; 
+            h <<= 56;
+
+            // Merge w/o register dependencies
+            a ^= b;
+            c ^= d;
+            e ^= f;
+            g ^= h;
+            
+            // Merge again.
+            a ^= c;
+            e ^= g;
+            
+            // Merge and XOR value
+            *(long*)(input + offset) = value ^ (a | e);
             xor *= xorMultiplier8;
         }
         
-        // Do remaining looping (factor in for length not divisible by 4
+        // Do remaining looping (factor in for length not divisible by unrollFactor)
         for (int x = numLoops * unrollFactor; x < length; x++)
         {
             input[x] = (byte)(input[x] ^ (byte)(xor & 0xff));
@@ -66,7 +91,7 @@ public static unsafe class TableDecryptor
         var result = GC.AllocateUninitializedArray<byte>(length);
         fixed (byte* resultPtr = result)
         {
-            Unsafe.CopyBlock(resultPtr, input, (uint)length);
+            Buffer.MemoryCopy(input, resultPtr, length, length);
             DecryptUTFInPlace(resultPtr, length);
         } 
         

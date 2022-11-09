@@ -13,6 +13,8 @@ public unsafe class DecryptTable
     private byte* _dataPtr;
     private GCHandle _handle;
     
+    // Note: Encryption here is a XOR, so it reverses itself, so test data can be anything.
+    
     [GlobalSetup]
     public void Setup()
     {
@@ -32,7 +34,7 @@ public unsafe class DecryptTable
     //[Benchmark(Baseline = true)]
     public byte[] CriPak()
     {
-        return CriPakToolsCriLayla.DecompressLegacyCRI(_data, _data.Length);
+        return CriPakToolsDecryptTable.DecryptUTF(_data);
     }
     
     //[Benchmark]

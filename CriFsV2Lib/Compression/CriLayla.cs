@@ -185,15 +185,15 @@ public static unsafe class CriLayla
         if (bitsLeft != 0)
         {
             currentByte = *(compressedDataPtr);
+            bitsLeft--;
         }
         else
         {
             compressedDataPtr--;
             currentByte = *(compressedDataPtr);
-            bitsLeft = 8;
+            bitsLeft = 7;
         }
 
-        bitsLeft--;
         return (byte)((currentByte >> bitsLeft) & 1);
     }
     

@@ -24,22 +24,26 @@ public static unsafe class TableDecryptor
         const int xorMultiplier7 = unchecked(xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier);
         const int xorMultiplier8 = unchecked(xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier * xorMultiplier);
         const int unrollFactor = 8;
-        
-        int xor = 0x0000655f;
+
+        long xor = 0x0000655f;
         int numLoops  = length / unrollFactor;
         
         for (int x = 0; x < numLoops; x++)
         {
             // Repeat unrollFactor times
             int offset = x * unrollFactor;
-            input[offset] = (byte)(input[offset] ^ (byte)(xor & 0xff));
-            input[offset + 1] = (byte)(input[offset + 1] ^ (byte)((xor * xorMultiplier) & 0xff));
-            input[offset + 2] = (byte)(input[offset + 2] ^ (byte)((xor * xorMultiplier2) & 0xff));
-            input[offset + 3] = (byte)(input[offset + 3] ^ (byte)((xor * xorMultiplier3) & 0xff));
-            input[offset + 4] = (byte)(input[offset + 4] ^ (byte)((xor * xorMultiplier4) & 0xff));
-            input[offset + 5] = (byte)(input[offset + 5] ^ (byte)((xor * xorMultiplier5) & 0xff));
-            input[offset + 6] = (byte)(input[offset + 6] ^ (byte)((xor * xorMultiplier6) & 0xff));
-            input[offset + 7] = (byte)(input[offset + 7] ^ (byte)((xor * xorMultiplier7) & 0xff));
+            long value = *(long*)(input + offset);
+            var xor1 = (xor & 0xff);
+            var xor2 = ((xor * xorMultiplier) & 0xff) << 8;
+            var xor3 = ((xor * xorMultiplier2) & 0xff) << 16;
+            var xor4 = ((xor * xorMultiplier3) & 0xff) << 24;
+            var xor5 = ((xor * xorMultiplier4) & 0xff) << 32;
+            var xor6 = ((xor * xorMultiplier5) & 0xff) << 40;
+            var xor7 = ((xor * xorMultiplier6) & 0xff) << 48;
+            var xor8 = ((xor * xorMultiplier7) & 0xff) << 56;
+            
+            value ^= (xor1 | xor2 | xor3 | xor4 | xor5 | xor6 | xor7 | xor8);
+            *(long*)(input + offset) = value;
             xor *= xorMultiplier8;
         }
         

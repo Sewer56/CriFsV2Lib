@@ -56,6 +56,7 @@ public static unsafe class CriLayla
                 
     */
     
+    // Note: SkipLocalsInit would be nice but it ruins loop alignment
     public static byte[] Decompress(byte* input)
     {
         // Read sizes from header.
@@ -114,11 +115,52 @@ public static unsafe class CriLayla
                         while (this_level == byte.MaxValue); // 0b11111111
                     }
 
-                    // lz77 copy, todo: this could be optimised.
-                    for (int i = 0; i < length; i++)
+                    // LZ77 Copy Below.
+                    
+                    // The optimal way to write this loop depends on average length of copy, 
+                    // and average length of copy depends on the data we're dealing with.  
+                    
+                    // As such, this would vary per files.
+                    // For text, length tends to be around 6 on average, for models around 9. 
+                    // In this implementation we'll put bias towards short copies where length < 10.
+                    
+                    // Note: Min length is 3 (also seems to be most common length), so we can keep that out of the
+                    // loop and make best use of pipelining.
+                    
+                    *writePtr = writePtr[offset];
+                    *(writePtr - 1) = (writePtr - 1)[offset];
+                    *(writePtr - 2) = (writePtr - 2)[offset];
+                    
+                    const int defaultPipelineLength = 3; // Pipeline as in 'CPU Pipelining'
+                    const int extraPipelineLength = 8;
+                    
+                    if (length < extraPipelineLength)
                     {
-                        *writePtr = writePtr[offset];
-                        writePtr--;
+                        writePtr -= defaultPipelineLength;
+                        if (length == defaultPipelineLength) 
+                            continue;
+                        
+                        var numLeft = length - defaultPipelineLength;
+                        for (int x = 0; x < numLeft; x++)
+                        {
+                            *writePtr = writePtr[offset];
+                            writePtr--;
+                        }
+                    }
+                    else
+                    {
+                        *(writePtr - 3) = (writePtr - 3)[offset];
+                        *(writePtr - 4) = (writePtr - 4)[offset];
+                        *(writePtr - 5) = (writePtr - 5)[offset];
+                        *(writePtr - 6) = (writePtr - 6)[offset];
+                        *(writePtr - 7) = (writePtr - 7)[offset];
+                        writePtr -= extraPipelineLength;
+                        var numLeft = length - extraPipelineLength;
+                        for (int i = 0; i < numLeft; i++)
+                        {
+                            *writePtr = writePtr[offset];
+                            writePtr--;
+                        }
                     }
                 }
                 else

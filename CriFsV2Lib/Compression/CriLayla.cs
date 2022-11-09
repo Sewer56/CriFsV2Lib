@@ -72,7 +72,7 @@ public static unsafe class CriLayla
             Unsafe.CopyBlockUnaligned(resultPtr, uncompressedDataPtr, UncompressedDataSize);
             
             // VLE as in 'Variable Length'
-            Span<byte> vleLengths = stackalloc byte[] { 2, 3, 5, 8 };
+            Span<nint> vleLengths = stackalloc nint[] { 2, 3, 5, 8 };
             
             // Pointer to which we're copying data to.
             byte* writePtr = resultPtr + UncompressedDataSize + uncompSizeOfCompData - 1;
@@ -94,12 +94,12 @@ public static unsafe class CriLayla
                     // Read variable length.
                     for (vleLevel = 0; vleLevel < vleLengths.Length; vleLevel++)
                     {
-                        int thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, vleLengths[vleLevel]);
+                        int thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, (int)vleLengths[vleLevel]);
                         length += thisLevel;
                         
                         // (1 << vleLengths[vleLevel]) - 1) is max possible value for this level.
                         // If we didn't add max value, read some more!
-                        if (thisLevel != ((1 << vleLengths[vleLevel]) - 1)) 
+                        if (thisLevel != ((1 << (int)vleLengths[vleLevel]) - 1)) 
                             break;
                     }
 

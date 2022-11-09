@@ -109,7 +109,7 @@ public static unsafe class CriLayla
                         int this_level;
                         do
                         {
-                            this_level = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 8);
+                            this_level = Read8(ref compressedDataPtr, ref bitsTillNextByte);
                             length += this_level;
                         } 
                         while (this_level == byte.MaxValue); // 0b11111111
@@ -166,7 +166,7 @@ public static unsafe class CriLayla
                 else
                 {
                     // verbatim byte
-                    *writePtr = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 8);
+                    *writePtr = Read8(ref compressedDataPtr, ref bitsTillNextByte);
                     writePtr--;
                 }
             }
@@ -251,6 +251,25 @@ public static unsafe class CriLayla
         return result;
     }
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static byte Read8(ref byte* compressedDataPtr, ref int bitsLeft)
+    {
+        compressedDataPtr--;
+        if (bitsLeft != 0)
+        {
+            // We must split between 2 reads.
+            int extraBitCount = 8 - bitsLeft;
+            int result = *(compressedDataPtr + 2) & ((1 << bitsLeft) - 1);
+            result <<= extraBitCount;
+            result |= (*(compressedDataPtr + 1) >> (8 - extraBitCount)) & ((1 << extraBitCount) - 1);
+            
+            // If there are more to read from next byte.
+            return (byte)result;
+        }
+
+        return *(compressedDataPtr + 1);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte ReadMax8(ref byte* compressedDataPtr, ref int bitsLeft, int bitCount)
     {

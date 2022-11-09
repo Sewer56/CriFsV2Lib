@@ -30,4 +30,17 @@ public unsafe class CompressionTests
             Assert.Equal(unmodifiedData, decompressed);
         }
     }
+    
+    [Fact]
+    public void IsCompressed()
+    {
+        var data = File.ReadAllBytes(Assets.SampleCompressedModelFile);
+        var unmodifiedData = File.ReadAllBytes(Assets.SampleUncompressedModelFile);
+        fixed (byte* unmodifiedPtr = unmodifiedData)
+        fixed (byte* dataPtr = data)
+        {
+            Assert.True(Compression.CriLayla.IsCompressed(dataPtr));
+            Assert.False(Compression.CriLayla.IsCompressed(unmodifiedPtr));
+        }
+    }
 }

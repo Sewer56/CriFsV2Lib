@@ -17,7 +17,14 @@ public static unsafe class CriLayla
     /// Minimum length of LZ77 copy command. 
     /// </summary>
     public const int MinCopyLength = 3;
-    
+
+    /// <summary>
+    /// Checks if a file is compressed by checking the signature at the start of it.
+    /// </summary>
+    /// <param name="data">Pointer to start of the file data.</param>
+    /// <returns>True if compressed, else false.</returns>
+    public static bool IsCompressed(byte* data) => *(long*)data == 0x414C59414C495243;
+
     /*
         Explanation of CRILayla
         

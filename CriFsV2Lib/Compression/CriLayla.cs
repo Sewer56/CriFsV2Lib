@@ -20,7 +20,6 @@ public static unsafe class CriLayla
     
     /*
         Explanation of CRILayla
-        [based on the code I optimised]
         
         == General Structure ==
         - LZSS based.  (offset & length pairs, can encode raw byte)  
@@ -53,7 +52,9 @@ public static unsafe class CriLayla
                     - 5 bits (max 31)
                     - 8 bits
                     
-                
+                And add the length to existing length variable.
+                If the max value is returned, we read next number of bits in fib sequence, up to 8 bits. Then 
+                read 8s until max value no longer returned.    
     */
     
     // Note: SkipLocalsInit would be nice but it ruins loop alignment

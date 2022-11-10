@@ -10,6 +10,7 @@
     <ItemGroup>
       <Folder Include="Encryption" />
       <Folder Include="Structs" />
+      <Folder Include="Utilities" />
     </ItemGroup>
 
 </Project>

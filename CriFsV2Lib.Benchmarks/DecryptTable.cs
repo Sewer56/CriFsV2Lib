@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using CriFsV2Lib.Encryption;
 using CriFsV2Lib.Tests.Reference;
@@ -30,14 +30,13 @@ public unsafe class DecryptTable
         _data = null;
     }
 
-    // Note: Encryption here is a XOR, so it reverses itself, so running the data is okay.
-    //[Benchmark(Baseline = true)]
+    [Benchmark(Baseline = true)]
     public byte[] CriPak()
     {
         return CriPakToolsDecryptTable.DecryptUTF(_data);
     }
     
-    //[Benchmark]
+    [Benchmark]
     public byte[] CriFsLib()
     {
         return TableDecryptor.DecryptUTF(_dataPtr, _data.Length);

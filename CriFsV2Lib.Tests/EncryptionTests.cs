@@ -22,4 +22,17 @@ public unsafe class EncryptionTests
             Assert.Equal(unmodifiedData, decrypted);
         }
     }
+    
+    [Fact]
+    public void IsEncrypted()
+    {
+        var data = File.ReadAllBytes(Assets.SampleEncryptedTable);
+        var unmodifiedData = File.ReadAllBytes(Assets.SampleDecryptedTable);
+        fixed (byte* dataPtr = data)
+        fixed (byte* unmodifiedDataPtr = unmodifiedData)
+        {
+            Assert.True(TableDecryptor.IsEncrypted(dataPtr));
+            Assert.False(TableDecryptor.IsEncrypted(unmodifiedDataPtr));
+        }
+    }
 }

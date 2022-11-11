@@ -11,6 +11,12 @@ namespace CriFsV2Lib.Encryption;
 public static unsafe class TableDecryptor
 {
     /// <summary>
+    /// Checks if this table is encrypted.
+    /// </summary>
+    /// <param name="input">Pointer to first byte in table.</param>
+    public static bool IsEncrypted(byte* input) =>  *(uint*) input == 0xF5F39E1F;
+    
+    /// <summary>
     /// Decrypts the CRI table (usually starts with 'UTF'), creating a copy of the data so original is unmodified.
     /// </summary>
     /// <param name="input">Table data.</param>

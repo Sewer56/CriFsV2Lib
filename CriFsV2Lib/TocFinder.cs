@@ -13,7 +13,7 @@ public static class TocFinder
     /// Finds the table of content
     /// </summary>
     /// <param name="header">Pointer to CRI Table header.</param>
-    /// <param name="header">Pointer to CRI Table header.</param>
+    /// <param name="tocOffset">Offset of the table of contents inside the archive.</param>
     /// <param name="contentOffset">Offset of start of raw file data. Files are offset from this offset.</param>
     /// <returns>Offset of the TOC inside the CPK file.</returns>
     [SkipLocalsInit]
@@ -52,7 +52,7 @@ public static class TocFinder
                 
                 // Check if our desired offsets.
                 if (namePrefix == FieldNames.TocOffse) tocOffsetColumnIndex = x;
-                if (namePrefix == FieldNames.ContentO) contentOffsetColumnIndex = x;
+                else if (namePrefix == FieldNames.ContentO) contentOffsetColumnIndex = x;
             }
             
             if (columnData->HasFlag(CriColumnFlags.HasDefaultValue))

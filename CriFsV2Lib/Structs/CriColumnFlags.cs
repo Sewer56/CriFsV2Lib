@@ -92,6 +92,26 @@ public struct CriColumnFlagsUnion
             _ => -1
         };
     }
+    
+    /// <summary>
+    /// Reads the data value for this column and casts it into an int.
+    /// </summary>
+    /// <param name="currentRowPtr">Pointer to the data value.</param>
+    public unsafe int ReadNumberInt(byte* currentRowPtr)
+    {
+        return AsType() switch
+        {
+            CriColumnType.Byte => *currentRowPtr,
+            CriColumnType.SByte => *(sbyte*)currentRowPtr,
+            CriColumnType.UInt16 => BinaryPrimitives.ReverseEndianness(*(ushort*)currentRowPtr),
+            CriColumnType.Int16 => BinaryPrimitives.ReverseEndianness(*(short*)currentRowPtr),
+            CriColumnType.UInt32 => (int)BinaryPrimitives.ReverseEndianness(*(uint*)currentRowPtr),
+            CriColumnType.Int32 => BinaryPrimitives.ReverseEndianness(*(int*)currentRowPtr),
+            CriColumnType.UInt64 => (int)BinaryPrimitives.ReverseEndianness(*(long*)currentRowPtr),
+            CriColumnType.Int64 => (int)BinaryPrimitives.ReverseEndianness(*(long*)currentRowPtr),
+            _ => -1
+        };
+    }
 }
 
 /// <summary>

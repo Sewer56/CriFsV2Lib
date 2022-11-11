@@ -1,5 +1,6 @@
 ﻿using CriFsV2Lib.Structs;
 using FileEmulationFramework.Tests;
+using File = System.IO.File;
 
 namespace CriFsV2Lib.Tests;
 
@@ -67,6 +68,31 @@ public class TableReadTests
             Assert.True(TocFinder.FindToc(tableDataPtr, out var tocOffset, out var contentOffset));
             Assert.Equal(178688, tocOffset);
             Assert.Equal(2048, contentOffset);
+        }
+    }
+    
+    [Fact]
+    public unsafe void TocReader_CanFindFiles()
+    {
+        // Arrange
+        var tableData = File.ReadAllBytes(Assets.SampleCpkFile);
+        fixed (byte* tableDataPtr = &tableData[TableContainerReader.TableContainerSize])
+        {
+            Assert.True(TocFinder.FindToc(tableDataPtr, out var tocOffset, out var contentOffset));
+
+            var tocPtr = tableDataPtr + tocOffset;
+            var files = TocReader.ReadToc(tocPtr, contentOffset);
+            Assert.Equal(3, files.Length);
+            
+            Assert.Equal("Audio-NoCompression.flac", files[0].FileName);
+            Assert.Equal(48431, files[0].FileSize);
+            Assert.Equal(48431, files[0].ExtractSize);
+            Assert.Equal(2048, files[0].FileOffset);
+            
+            Assert.Equal("Text-Compressed.txt", files[2].FileName);
+            Assert.Equal(7044, files[2].FileSize);
+            Assert.Equal(15035, files[2].ExtractSize);
+            Assert.Equal(171520, files[2].FileOffset);
         }
     }
 }

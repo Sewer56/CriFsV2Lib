@@ -1,6 +1,15 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=04f41a72_002Dcffd_002D4901_002D9d26_002D4a365a11bf02/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="DecompressesCorrectly" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CompressionTests.DecompressesCorrectly&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CompressionTests.Model_DecompressesCorrectly&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CompressionTests.Text_DecompressesCorrectly&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CompressionTests.IsCompressed&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.EncryptionTests.CanDecryptTable&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.EncryptionTests.IsEncrypted&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests.Table_CanRead_WhenEncrypted&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests.Table_CanRead_WhenDecrypted&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests.Table_CanReadMetadata&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests.TocFinder_CanFindToc&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

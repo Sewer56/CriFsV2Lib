@@ -9,7 +9,6 @@
 
     <ItemGroup>
       <Folder Include="Encryption" />
-      <Folder Include="Structs" />
     </ItemGroup>
 
     <ItemGroup>

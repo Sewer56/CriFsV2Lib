@@ -1,4 +1,5 @@
-﻿using FileEmulationFramework.Tests;
+﻿using CriFsV2Lib.Structs;
+using FileEmulationFramework.Tests;
 
 namespace CriFsV2Lib.Tests;
 
@@ -35,5 +36,37 @@ public class TableReadTests
         // Assert
         var expected = File.ReadAllBytes(Assets.SampleDecryptedTable);
         Assert.Equal(expected, actual);
+    }
+    
+    [Fact]
+    public unsafe void Table_CanReadMetadata()
+    {
+        // Arrange
+        var tableData = File.ReadAllBytes(Assets.SampleDecryptedTable);
+        fixed (byte* tableDataPtr = &tableData[0])
+        {
+            var metadata = new CriTableMetadata(tableDataPtr);
+            
+            // Assert
+            Assert.Equal(252, metadata.RowsOffset);
+            Assert.Equal(382, metadata.StringPoolOffset);
+            Assert.Equal(856, metadata.DataPoolOffset);
+            Assert.Equal(44, metadata.ColumnCount);
+            Assert.Equal(130, metadata.RowSizeBytes);
+            Assert.Equal(1, metadata.RowCount);
+        }
+    }
+    
+    [Fact]
+    public unsafe void TocFinder_CanFindToc()
+    {
+        // Arrange
+        var tableData = File.ReadAllBytes(Assets.SampleDecryptedTable);
+        fixed (byte* tableDataPtr = &tableData[0])
+        {
+            Assert.True(TocFinder.FindToc(tableDataPtr, out var tocOffset, out var contentOffset));
+            Assert.Equal(178688, tocOffset);
+            Assert.Equal(2048, contentOffset);
+        }
     }
 }

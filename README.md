@@ -12,6 +12,8 @@ Goals:
 I wrote this library for my personal needs (i.e. for use with [CriFs.V2.Hook](https://github.com/Sewer56/CriFs.V2.Hook.ReloadedII) extensions).  
 Does not support packing/repacking; if you need that functionality, fire a pull request 😇.  
 
+What this library isn't:  
+- General CRI Table Parser  (it skips any data it doesn't care about)
 
 Feature Support
 ===============

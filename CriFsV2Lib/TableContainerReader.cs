@@ -1,6 +1,5 @@
 ﻿using CriFsV2Lib.Encryption;
 using CriFsV2Lib.Utilities;
-using Reloaded.Memory.Streams;
 
 namespace CriFsV2Lib;
 

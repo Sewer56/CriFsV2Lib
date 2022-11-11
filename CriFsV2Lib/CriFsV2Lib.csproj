@@ -11,8 +11,4 @@
       <Folder Include="Encryption" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Reloaded.Memory" Version="8.0.1" />
-    </ItemGroup>
-
 </Project>

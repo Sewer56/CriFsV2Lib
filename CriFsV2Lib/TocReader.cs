@@ -66,7 +66,8 @@ public static class TocReader
         
         // Let's read the data from the rows now.
         // CPK header has only one row, so we read all column data.
-        var encoding = Encoding.UTF8;
+        var encoding = metadata.GetEncoding(header);
+        
         var stringPool = new CriStringPool(metadata.RowCount);
         var baseRowPtr = metadata.GetFirstRowPtr(header);
         var result = new CpkFile[metadata.RowCount];

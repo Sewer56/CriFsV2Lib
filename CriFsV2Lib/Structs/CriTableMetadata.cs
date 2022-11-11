@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Binary;
+using System.Text;
 
 namespace CriFsV2Lib.Structs;
 
@@ -7,6 +8,8 @@ namespace CriFsV2Lib.Structs;
 /// </summary>
 public unsafe ref struct CriTableMetadata
 {
+    private static Encoding Shift_JIS => CodePagesEncodingProvider.Instance.GetEncoding(932);
+    
     /// <summary>
     /// Base offset from which other offsets are relative to.
     /// </summary>
@@ -68,6 +71,12 @@ public unsafe ref struct CriTableMetadata
         StringPoolOffset += BaseOffset;
         DataPoolOffset += BaseOffset;
     }
+
+    /// <summary>
+    /// Gets the encoding for this file.
+    /// </summary>
+    /// <param name="header">Header of the file.</param>
+    public Encoding GetEncoding(byte* header) => *(header + 0x9) == 1 ? Shift_JIS : Encoding.UTF8;
 
     /// <summary>
     /// Returns the pointer to the first column.

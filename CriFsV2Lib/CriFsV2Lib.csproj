@@ -10,7 +10,10 @@
     <ItemGroup>
       <Folder Include="Encryption" />
       <Folder Include="Structs" />
-      <Folder Include="Utilities" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Reloaded.Memory" Version="8.0.1" />
     </ItemGroup>
 
 </Project>

@@ -18,14 +18,28 @@ What this library isn't:
 Feature Support
 ===============
 
-- Decompression (CRILayla)  
-- Header Decryption  
+- Decompression (CRILayla).  
+- Header Decryption.  
+- Custom User Decryption Functions.  
 
 Usage
 =====
 
-Coming Soon.
+High Level API is available in the `CpkHelper` class.  
 
+Get File Info:  
+```csharp
+using var fileStream = new FileStream(Assets.SampleCpkFile, FileMode.Open);
+var files = CpkHelper.GetFilesFromStream(fileStream);
+```
+
+Extract a File:  
+```csharp
+var file = CpkHelper.ExtractFile(files[0], fileStream)
+```
+
+You can pass in optional decryption function.  
+Lower level APIs will require partial understanding of the formats, have a look at the tests project.  
 
 Performance
 ===========

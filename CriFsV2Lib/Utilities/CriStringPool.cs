@@ -11,11 +11,10 @@ namespace CriFsV2Lib.Utilities;
 /// </summary>
 public struct CriStringPool
 {
-    private Dictionary<int, string> _offsetToString;
+    private string _lastString;
+    private int _lastOffset = -1;
 
-    /// <summary/>
-    /// <param name="numItems">Expected number of items.</param>
-    public CriStringPool(int numItems) => _offsetToString = new Dictionary<int, string>(numItems);
+    public CriStringPool() { }
 
     /// <summary>
     /// Gets a string from the string pool.
@@ -24,6 +23,7 @@ public struct CriStringPool
     /// <param name="stringPtr">Pointer to the CRI String.</param>
     /// <param name="encoding">The encoding used for the string conversion.</param>
     /// <returns>Managed string at that position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe string Get(byte* stringPoolAddr, CriString* stringPtr, Encoding encoding) => Get(stringPoolAddr, BinaryPrimitives.ReverseEndianness(stringPtr->Offset), encoding);
 
     /// <summary>
@@ -37,11 +37,12 @@ public struct CriStringPool
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe string Get(byte* stringPoolAddr, int offset, Encoding encoding)
     {
-        if (_offsetToString.TryGetValue(offset, out var result))
-            return result;
-
-        result = GetWithoutPooling(stringPoolAddr, offset, encoding);
-        _offsetToString[offset] = result;
+        if (_lastOffset == offset)
+            return _lastString;
+            
+        _lastOffset = offset;
+        var result  = GetWithoutPooling(stringPoolAddr, offset, encoding);
+        _lastString = result;
         return result;
     }
     

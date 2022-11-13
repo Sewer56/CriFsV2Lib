@@ -68,7 +68,8 @@ public static class TocReader
         // CPK header has only one row, so we read all column data.
         var encoding = metadata.GetEncoding(header);
         
-        var stringPool = new CriStringPool(metadata.RowCount / 10); // Generous estimate of average 10 files per directory.
+        var userStringPool = new CriStringPool();
+        var namePool = new CriStringPool();
         var baseRowPtr = metadata.GetFirstRowPtr(header);
         var result = new CpkFile[metadata.RowCount];
         
@@ -87,9 +88,9 @@ public static class TocReader
                 if (column.HasFlag(CriColumnFlags.IsRowStorage))
                 {
                     if (y == dirNameColumnIndex)
-                        file.Directory = stringPool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
+                        file.Directory = namePool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
                     else if (y == fileNameColumnIndex)
-                        file.FileName = stringPool.GetWithoutPooling(stringPoolPtr, (CriString*)currentRowPtr, encoding);
+                        file.FileName = namePool.GetWithoutPooling(stringPoolPtr, (CriString*)currentRowPtr, encoding);
                     else if (y == fileSizeColumnIndex)
                         file.FileSize = column.ReadNumberInt(currentRowPtr);
                     else if (y == extractSizeColumnIndex)
@@ -97,7 +98,7 @@ public static class TocReader
                     else if (y == fileOffsetColumnIndex)
                         file.FileOffset = column.ReadNumberLong(currentRowPtr) + contentOffset;
                     else if (y == userStringColumnIndex)
-                        file.UserString = stringPool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
+                        file.UserString = userStringPool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
                 }
 
                 if (column.HasFlag(CriColumnFlags.IsRowStorage))

@@ -3,6 +3,7 @@
 using BenchmarkDotNet.Running;
 using CriFsV2Lib.Benchmarks;
 
-BenchmarkRunner.Run<Decompression_Model>();
-BenchmarkRunner.Run<Decompression_Text>();
-BenchmarkRunner.Run<DecryptTable>();
+// BenchmarkRunner.Run<Decompression_Model>();
+// BenchmarkRunner.Run<Decompression_Text>();
+// BenchmarkRunner.Run<DecryptTable>();
+BenchmarkRunner.Run<DecryptP5R>();

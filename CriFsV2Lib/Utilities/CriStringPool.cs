@@ -28,6 +28,7 @@ public struct CriStringPool
 
     /// <summary>
     /// Gets a string from the string pool.
+    /// Use if string is expected to be non-unique.
     /// </summary>
     /// <param name="stringPoolAddr">Address of the first byte of the string pool in CPK.</param>
     /// <param name="offset">Offset of the string.</param>
@@ -39,11 +40,34 @@ public struct CriStringPool
         if (_offsetToString.TryGetValue(offset, out var result))
             return result;
 
-        var addr = stringPoolAddr + offset;
-        
-        // Note: CreateReadOnlySpanFromNullTerminated seems to be the only strlen exposed by the runtime. I checked runtime source.
-        result = encoding.GetString(addr, MemoryMarshal.CreateReadOnlySpanFromNullTerminated(addr).Length);
+        result = GetWithoutPooling(stringPoolAddr, offset, encoding);
         _offsetToString[offset] = result;
         return result;
+    }
+    
+    /// <summary>
+    /// Gets a string without adding it to the string cache.
+    /// Use if string is expected to be unique.
+    /// </summary>
+    /// <param name="stringPoolAddr">Address of the first byte of the string pool in CPK.</param>
+    /// <param name="stringPtr">Pointer to the CRI String.</param>
+    /// <param name="encoding">The encoding used for the string conversion.</param>
+    /// <returns>Managed string at that position.</returns>
+    public unsafe string GetWithoutPooling(byte* stringPoolAddr, CriString* stringPtr, Encoding encoding) => GetWithoutPooling(stringPoolAddr, BinaryPrimitives.ReverseEndianness(stringPtr->Offset), encoding);
+
+    /// <summary>
+    /// Gets a string without adding it to the string cache.
+    /// Use if string is expected to be unique.
+    /// </summary>
+    /// <param name="stringPoolAddr">Address of the first byte of the string pool in CPK.</param>
+    /// <param name="offset">Offset of the string.</param>
+    /// <param name="encoding">The encoding used for the string conversion.</param>
+    /// <returns>Managed string at that position.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public unsafe string GetWithoutPooling(byte* stringPoolAddr, int offset, Encoding encoding)
+    {
+        // Note: CreateReadOnlySpanFromNullTerminated seems to be the only strlen exposed by the runtime. I checked runtime source.
+        var addr = stringPoolAddr + offset;
+        return encoding.GetString(addr, MemoryMarshal.CreateReadOnlySpanFromNullTerminated(addr).Length);
     }
 }

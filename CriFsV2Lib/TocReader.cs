@@ -89,7 +89,7 @@ public static class TocReader
                     if (y == dirNameColumnIndex)
                         file.Directory = stringPool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
                     else if (y == fileNameColumnIndex)
-                        file.FileName = stringPool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
+                        file.FileName = stringPool.GetWithoutPooling(stringPoolPtr, (CriString*)currentRowPtr, encoding);
                     else if (y == fileSizeColumnIndex)
                         file.FileSize = column.ReadNumberInt(currentRowPtr);
                     else if (y == extractSizeColumnIndex)

@@ -44,8 +44,9 @@ Lower level APIs will require partial understanding of the formats, have a look 
 Performance
 ===========
 
-Some parts of this library are heavily tuned for performance. For example the *decompression algorithm*.
+Some parts of this library are heavily tuned for performance. 
 
+Decompression (CRILayla, 165KiB Model file):  
 ```
 BenchmarkDotNet=v0.13.2, OS=Windows 10 (10.0.19044.2130/21H2/November2021Update)
 Intel Core i7-4790K CPU 4.00GHz (Haswell), 1 CPU, 8 logical and 4 physical cores
@@ -59,7 +60,25 @@ Intel Core i7-4790K CPU 4.00GHz (Haswell), 1 CPU, 8 logical and 4 physical cores
 | CriFsLib | 355.4 us |  3.20 us | 2.83 us |  0.36 | 52.2461 | 52.2461 | 52.2461 | 165.71 KB |        1.00 |
 ```
 
-(`CriPak` is the reference implementation from [CriPakTools](https://github.com/wmltogether/CriPakTools)).
+Header decryption/descramble [2MB Header]:  
+```
+|           Method |        Mean |    Error |   StdDev | Ratio |     Gen0 |     Gen1 |     Gen2 | Allocated | Alloc Ratio |
+|----------------- |------------:|---------:|---------:|------:|---------:|---------:|---------:|----------:|------------:|
+|           CriPak | 1,851.23 us | 6.343 us | 5.623 us |  1.00 | 294.9219 | 294.9219 | 294.9219 | 2097269 B |        1.00 |
+|         CriFsLib |   529.34 us | 3.844 us | 3.407 us |  0.29 | 331.0547 | 331.0547 | 331.0547 | 2097280 B |        1.00 |
+| CriFsLib_InPlace |    87.06 us | 1.241 us | 1.161 us |  0.05 |        - |        - |        - |         - |        0.00 |
+```
+Is approximately 15 times faster than the in retail CRI games.
+
+
+Parsing a 30GB encrypted/scrambled CPK with 45000 files:  
+```csharp
+|     Method |     Mean |     Error |    StdDev |     Gen0 |     Gen1 |     Gen2 | Allocated |
+|----------- |---------:|----------:|----------:|---------:|---------:|---------:|----------:|
+| ParseTable | 8.469 ms | 0.1660 ms | 0.3276 ms | 984.3750 | 968.7500 | 546.8750 |   6.44 MB |
+```
+
+[`CriPak` is the reference implementation from [CriPakTools](https://github.com/wmltogether/CriPakTools)].
 
 Resources
 =====
@@ -75,3 +94,9 @@ Building
 - Install .NET 7 SDK.
 - Build with `dotnet build -c Release` 
 or if you prefer an IDE, just open `CriFsV2Lib.sln`.
+
+Credits
+=========
+
+- Aforementioned authors in 'Resources' section.  
+- Sano Shin'ichirou, yeah321: Cultured unit test data for decompression testing.  [Small Extract from Visual Novel.]  

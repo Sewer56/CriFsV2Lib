@@ -68,7 +68,7 @@ public static class TocReader
         // CPK header has only one row, so we read all column data.
         var encoding = metadata.GetEncoding(header);
         
-        var stringPool = new CriStringPool(metadata.RowCount);
+        var stringPool = new CriStringPool(metadata.RowCount / 10); // Generous estimate of average 10 files per directory.
         var baseRowPtr = metadata.GetFirstRowPtr(header);
         var result = new CpkFile[metadata.RowCount];
         

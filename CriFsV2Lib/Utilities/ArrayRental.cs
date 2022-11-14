@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Transactions;
 
@@ -16,11 +16,23 @@ public struct ArrayRental<T> : IDisposable
     /// <summary>
     /// Empty rental.
     /// </summary>
-    public static readonly ArrayRental<T> Empty = new ArrayRental<T>(0, false);
+    public static readonly ArrayRental<T> Empty;
+
+    static ArrayRental()
+    {
+        Reset();
+        Empty = new ArrayRental<T>(0, false);
+    }
 
     private T[] _data;
     private int _count;
     private bool _canDispose;
+    private static ArrayPool<T> _dataPool = null!;
+
+    /// <summary>
+    /// Resets the data pool allowing memory to be reclaimed.
+    /// </summary>
+    public static void Reset() => _dataPool = ArrayPool<T>.Create(1024 * 1024 * 64, Environment.ProcessorCount); // 64MB
 
     /// <summary>
     /// Rents an array of bytes from the arraypool.
@@ -34,7 +46,7 @@ public struct ArrayRental<T> : IDisposable
     /// <param name="count">Needed amount of bytes.</param>
     private ArrayRental(int count, bool canDispose)
     {
-        _data = ArrayPool<T>.Shared.Rent(count);
+        _data = _dataPool.Rent(count);
         _count = count;
         _canDispose = canDispose;
     }
@@ -66,7 +78,7 @@ public struct ArrayRental<T> : IDisposable
     public void Dispose()
     {
         if (_canDispose)
-            ArrayPool<T>.Shared.Return(_data, false);
+            _dataPool.Return(_data, false);
     }
 
     /// <summary>

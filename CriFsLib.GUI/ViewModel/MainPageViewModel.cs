@@ -1,16 +1,14 @@
 ﻿using CriFsLib.GUI.Model;
 using CriFsV2Lib;
 using CriFsV2Lib.Encryption.Game;
-using Microsoft.Win32;
+using CriFsV2Lib.Utilities;
 using Ookii.Dialogs.Wpf;
 using Reloaded.WPF.MVVM;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace CriFsLib.GUI.ViewModel;
@@ -20,7 +18,7 @@ public class MainPageViewModel : ObservableObject
     public Visibility ShowDragDropText { get; set; } = Visibility.Visible;
     public Visibility ShowItemList { get; set; } = Visibility.Collapsed;
     public IList SelectedItems { get; set; } = new List<CpkFileModel>();
-    public List<CpkFileModel> Files { get; set; } = new List<CpkFileModel>();
+    public CpkFileModel[] Files { get; set; } = Array.Empty<CpkFileModel>();
     public string CurrentFilePath { get; set; } = string.Empty;
 
     internal void Extract()
@@ -28,7 +26,7 @@ public class MainPageViewModel : ObservableObject
         if (!TryGetOutputFolder(out var folderPath))
             return; 
 
-        ExtractItems(folderPath, SelectedItems.Cast<CpkFileModel>().ToList());
+        ExtractItems(folderPath, SelectedItems.Cast<CpkFileModel>().ToArray());
     }
 
     internal void ExtractAll()
@@ -36,67 +34,38 @@ public class MainPageViewModel : ObservableObject
         if (!TryGetOutputFolder(out var folderPath))
             return;
 
-        ExtractItems(folderPath, Files);
+        ExtractItems(folderPath, Files.ToArray()); // clone as we sort the array.
     }
 
-    private void ExtractItems(string folder, List<CpkFileModel> files)
+    private void ExtractItems(string folder, CpkFileModel[] files)
     {
         // TODO: Selectable crypto function when we add more.
-        var readOptions = new FileStreamOptions()
+        // Sort in ascending order, hopefully will reduce seeks.
+        Array.Sort(files, (a,b) => a.File.FileOffset.CompareTo(b.File.FileOffset));
+        using var extractor = new BatchFileExtractor<CpkFileExtractorItemModel>(CurrentFilePath, P5RCrypto.DecryptionFunction);
+        for (int x = 0; x < files.Length; x++)
         {
-            Access = FileAccess.Read,
-            BufferSize = 0,
-            Mode = FileMode.Open,
-            Options = FileOptions.SequentialScan
-        };
+            ref var file = ref files[x];
+            extractor.QueueItem(new CpkFileExtractorItemModel(Path.Combine(folder, file.FullPath), file));
+        }
 
-        // Extract in Parallel
-        Parallel.ForEach(Partitioner.Create(0, files.Count), (range, loopState) =>
-        {
-            using var fileStream = new FileStream(CurrentFilePath, readOptions);
-            for (int x = range.Item1; x < range.Item2; x++)
-            {
-                var file = files[x];
-
-                // Extract
-                using var data = CpkHelper.ExtractFile(file.File, fileStream, P5RCrypto.DecryptionFunction);
-                var path = Path.Combine(folder, file.FullPath);
-
-                // Create Directory
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-
-                // Write to disk.
-                using var outputStream = new FileStream(path, new FileStreamOptions()
-                {
-                    Access = FileAccess.Write,
-                    BufferSize = 0,
-                    Mode = FileMode.Create,
-                    PreallocationSize = data.Span.Length
-                });
-                outputStream.Write(data.Span);
-            }
-        });
+        extractor.WaitForCompletion();
     }
 
     internal void OpenCpk(string filePath)
     {
         using var fileStream = new FileStream(filePath, FileMode.Open);
         var files    = CpkHelper.GetFilesFromStream(fileStream);
-        var newFiles = new List<CpkFileModel>(files.Length);
-        var existingFilePaths = new HashSet<string>();
+        var newFiles = GC.AllocateUninitializedArray<CpkFileModel>(files.Length);
 
-        foreach (var file in files)
+        for (int x = 0; x < files.Length; x++)
         {
-            // Deduplicate (CPKs can have multiple files with same relative paths to speed up loads).
-            var fullPath = !string.IsNullOrEmpty(file.Directory) 
+            CriFsV2Lib.Structs.CpkFile file = files[x];
+            var fullPath = !string.IsNullOrEmpty(file.Directory)
                 ? Path.Combine(file.Directory, file.FileName)
                 : file.FileName;
 
-            if (!existingFilePaths.Contains(fullPath))
-            {
-                existingFilePaths.Add(fullPath);
-                newFiles.Add(new CpkFileModel(file, fullPath));
-            }
+            newFiles[x] = new CpkFileModel(file, fullPath);
         }
 
         CurrentFilePath = filePath;

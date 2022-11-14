@@ -48,11 +48,11 @@ public static class TocFinder
             if (columnData->HasFlag(CriColumnFlags.HasName))
             {
                 columnSize += sizeof(CriString);
-                var namePrefix = columnData->GetNamePrefixLongFast(columnData, stringPoolPtr);
+                var stringAddress = columnData->GetStringAddress(columnData, stringPoolPtr);
                 
                 // Check if our desired offsets.
-                if (namePrefix == FieldNames.TocOffse) tocOffsetColumnIndex = x;
-                else if (namePrefix == FieldNames.ContentO) contentOffsetColumnIndex = x;
+                if (Constants.Fields.IsTocOffset(stringAddress)) tocOffsetColumnIndex = x;
+                else if (Constants.Fields.IsContentOffset(stringAddress)) contentOffsetColumnIndex = x;
             }
             
             if (columnData->HasFlag(CriColumnFlags.HasDefaultValue))

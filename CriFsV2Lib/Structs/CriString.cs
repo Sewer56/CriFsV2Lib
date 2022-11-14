@@ -13,14 +13,15 @@ public struct CriString
     /// Offset of this string.
     /// </summary>
     public int Offset;
-    
+
     /// <summary>
-    /// Gets the prefix for the string. Use with strings 7 >= characters.
+    /// Gets the address of the string contained here.
+    /// Assumes <see cref="HasName"/> == true.
     /// </summary>
     /// <param name="stringPoolPtr">Pointer to the address of the first character in the string section/pool.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe long GetPrefixLongFast(byte* stringPoolPtr)
+    public unsafe byte* GetStringAddress(byte* stringPoolPtr)
     {
-        return *(long*)(stringPoolPtr + BinaryPrimitives.ReverseEndianness(Offset));
+        return (stringPoolPtr + BinaryPrimitives.ReverseEndianness(Offset));
     }
 }

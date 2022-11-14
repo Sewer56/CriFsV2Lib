@@ -35,15 +35,15 @@ public struct CriColumnFlagsUnion
     public bool HasFlag(CriColumnFlags flag) => (_flags & flag) == flag;
 
     /// <summary>
-    /// Gets the prefix for the name.
+    /// Gets the address of the string contained here.
     /// Assumes <see cref="HasName"/> == true.
     /// </summary>
     /// <param name="thisPtr">Pointer to the 'this' instance.</param>
     /// <param name="stringPoolPtr">Pointer to the address of the first character in the string section/pool.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe long GetNamePrefixLongFast(CriColumnFlagsUnion* thisPtr, byte* stringPoolPtr)
+    public unsafe byte* GetStringAddress(CriColumnFlagsUnion* thisPtr, byte* stringPoolPtr)
     {
-        return ((CriString*)(thisPtr + 1))->GetPrefixLongFast(stringPoolPtr);
+        return ((CriString*)(thisPtr + 1))->GetStringAddress(stringPoolPtr);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public struct CriColumnFlagsUnion
             CriColumnType.Int16 => BinaryPrimitives.ReverseEndianness(*(short*)currentRowPtr),
             CriColumnType.UInt32 => BinaryPrimitives.ReverseEndianness(*(uint*)currentRowPtr),
             CriColumnType.Int32 => BinaryPrimitives.ReverseEndianness(*(int*)currentRowPtr),
-            CriColumnType.UInt64 => BinaryPrimitives.ReverseEndianness(*(long*)currentRowPtr),
+            CriColumnType.UInt64 => (long)BinaryPrimitives.ReverseEndianness(*(ulong*)currentRowPtr),
             CriColumnType.Int64 => BinaryPrimitives.ReverseEndianness(*(long*)currentRowPtr),
             _ => -1
         };

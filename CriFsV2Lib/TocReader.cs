@@ -47,15 +47,15 @@ public static class TocReader
             if (columnData->HasFlag(CriColumnFlags.HasName))
             {
                 columnSize += sizeof(CriString);
-                var namePrefix = columnData->GetNamePrefixLongFast(columnData, stringPoolPtr);
+                var stringAddress = columnData->GetStringAddress(columnData, stringPoolPtr);
                 
                 // Check if our desired offsets.
-                if (namePrefix == Constants.FieldNames.DirName) dirNameColumnIndex = x;
-                else if (namePrefix == Constants.FieldNames.FileName) fileNameColumnIndex = x;
-                else if (namePrefix == Constants.FieldNames.FileSize) fileSizeColumnIndex = x;
-                else if (namePrefix == Constants.FieldNames.ExtractSi) extractSizeColumnIndex = x;
-                else if (namePrefix == Constants.FieldNames.FileOffs) fileOffsetColumnIndex = x;
-                else if (namePrefix == Constants.FieldNames.UserStri) userStringColumnIndex = x;
+                if (Constants.Fields.IsDirName(stringAddress)) dirNameColumnIndex = x;
+                else if (Constants.Fields.IsFileName(stringAddress)) fileNameColumnIndex = x;
+                else if (Constants.Fields.IsFileSize(stringAddress)) fileSizeColumnIndex = x;
+                else if (Constants.Fields.IsExtractSize(stringAddress)) extractSizeColumnIndex = x;
+                else if (Constants.Fields.IsFileOffset(stringAddress)) fileOffsetColumnIndex = x;
+                else if (Constants.Fields.IsUserString(stringAddress)) userStringColumnIndex = x;
             }
             
             if (columnData->HasFlag(CriColumnFlags.HasDefaultValue))

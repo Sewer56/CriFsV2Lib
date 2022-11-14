@@ -5,7 +5,23 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+
+    <!-- IL Trimming Support for Framework Dependent Apps. Unofficial.
+         If you set this to true, trimming will be enabled when you publish the app. -->
+    <ReloadedILLink>true</ReloadedILLink>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ReloadedLinkRoots Include="CriFsLib.GUI" />
+    <!-- Add assemblies to be trimmed. You might need to add their dependencies too!  -->
+    <!-- <ReloadedLinkAssemblies Include="Reloaded.Memory" /> -->
+    <ReloadedLinkAssemblies Include="CriFsV2Lib" />
+    <ReloadedLinkAssemblies Include="ByteSize" />
+    <ReloadedLinkAssemblies Include="Reloaded.WPF.Animations" />
+    <ReloadedLinkAssemblies Include="Reloaded.WPF.ColorMineLite" />
+  </ItemGroup>
+
+  <Import Project="Reloaded.Trimming.targets" />
 
   <ItemGroup>
     <PackageReference Include="ByteSize" Version="2.1.1" />

@@ -12,6 +12,8 @@ namespace CriFsV2Lib.Utilities;
 public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorItem
 {
     private const int SleepTime = 16;
+    private static readonly int MaxNumItemsToProcess = Environment.ProcessorCount;
+
     private static FileStreamOptions _readOptions = new FileStreamOptions()
     {
         Access = FileAccess.Read,
@@ -22,6 +24,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
 
     private ConcurrentQueue<T> _extractItems = new ConcurrentQueue<T>();
     private int _numQueuedItems = 0;
+    private int _numItemsProcessing = 0;
     private ConcurrentQueue<FilePipelineItem> _decompressItems = new ConcurrentQueue<FilePipelineItem>();
     private ConcurrentQueue<FilePipelineItem> _writeItems = new ConcurrentQueue<FilePipelineItem>();
 
@@ -60,7 +63,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
     /// <param name="item">The item to queue.</param>
     public void QueueItem(T item)
     {
-        Interlocked.Add(ref _numQueuedItems, 1);
+        Interlocked.Increment(ref _numQueuedItems);
         _extractItems.Enqueue(item);
     }
 
@@ -86,6 +89,11 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
                     return;
             }
 
+            // Try not to overwhelm decompression threads/tasks.
+            while (_numItemsProcessing > MaxNumItemsToProcess)
+                Thread.Yield();
+
+            Interlocked.Increment(ref _numItemsProcessing);
             var data = CpkHelper.ExtractFileNoDecompression(item.File, _sourceCpkStream, out bool needsDecompression, _decrypt);
             if (!needsDecompression)
                 _writeItems.Enqueue(new FilePipelineItem(item.FullPath, data));
@@ -141,7 +149,8 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
             finally
             {
                 item.data.Dispose();
-                Interlocked.Add(ref _numQueuedItems, -1);
+                Interlocked.Decrement(ref _numQueuedItems);
+                Interlocked.Decrement(ref _numItemsProcessing);
             }
         }
     }

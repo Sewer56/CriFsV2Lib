@@ -14,7 +14,7 @@ public static class TocFinder
     /// </summary>
     /// <param name="header">Pointer to CRI Table header.</param>
     /// <param name="tocOffset">Offset of the table of contents inside the archive.</param>
-    /// <param name="contentOffset">Offset of start of raw file data. Files are offset from this offset.</param>
+    /// <param name="contentOffset">Offset from which file offsets are offset from.</param>
     /// <returns>Offset of the TOC inside the CPK file.</returns>
     [SkipLocalsInit]
     public static unsafe bool FindToc(byte* header, out long tocOffset, out long contentOffset)
@@ -82,6 +82,11 @@ public static class TocFinder
             if (column.HasFlag(CriColumnFlags.IsRowStorage))
                 currentRowPtr += column.GetValueLength();
         }
+
+        // In some CPKs offsets are relative to TOC as opposed to ContentOffset in header.
+        // This happens when TOC address is before ContentOffset.
+        if (tocOffset < contentOffset)
+            contentOffset = tocOffset; 
 
         return (tocOffset != DefaultOffset) && (contentOffset != DefaultOffset);
     }

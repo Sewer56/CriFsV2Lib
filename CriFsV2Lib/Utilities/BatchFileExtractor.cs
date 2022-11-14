@@ -12,7 +12,7 @@ namespace CriFsV2Lib.Utilities;
 public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorItem
 {
     private const int SleepTime = 16;
-    private static readonly int MaxNumItemsToProcess = Environment.ProcessorCount;
+    private static readonly int MaxNumItemsToProcess = IntPtr.Size == 4 ? Math.Min(2, Environment.ProcessorCount) : Environment.ProcessorCount;
 
     private static FileStreamOptions _readOptions = new FileStreamOptions()
     {

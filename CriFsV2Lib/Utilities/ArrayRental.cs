@@ -13,6 +13,11 @@ namespace CriFsV2Lib.Utilities;
 public struct ArrayRental : IDisposable
 {
     /// <summary>
+    /// Max Arrays for 32-bit item.
+    /// </summary>
+    internal const int Max32BitItemsPerBucket = 1;
+
+    /// <summary>
     /// Empty rental.
     /// </summary>
     public static readonly ArrayRental Empty;
@@ -31,7 +36,13 @@ public struct ArrayRental : IDisposable
     /// <summary>
     /// Resets the data pool allowing memory to be reclaimed.
     /// </summary>
-    public static void Reset() => _dataPool = ArrayPool<byte>.Create(1024 * 1024 * 64, Environment.ProcessorCount); // 64MB
+    public static void Reset() 
+    {
+        if (IntPtr.Size == 4)
+            _dataPool = ArrayPool<byte>.Create(1024 * 1024 * Max32BitItemsPerBucket, 16); // 1 x 16MB
+        else
+            _dataPool = ArrayPool<byte>.Create(1024 * 1024 * 64, Environment.ProcessorCount); // 64MB
+    }
 
     /// <summary>
     /// Rents an array of bytes from the arraypool.

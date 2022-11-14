@@ -1,0 +1,68 @@
+﻿<default:ReloadedWindow x:Class="CriFsLib.GUI.MainWindow"
+        xmlns:default="clr-namespace:Reloaded.WPF.Theme.Default;assembly=Reloaded.WPF.Theme.Default"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CriFsLib.GUI"
+        xmlns:controls="clr-namespace:CriFsLib.GUI.Controls"
+        mc:Ignorable="d"
+        Title="CriFsLib Extractor GUI" 
+        Height="450"
+        Width="800"
+        Style="{DynamicResource ReloadedWindow}"
+        AllowDrop="True" DragOver="OnDragOver" Drop="OnDrop">
+    <Grid x:Name="Contents" DataContext="{Binding Path=ViewModel, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" Margin="20">
+
+        <Grid.Resources>
+            <!-- Filtered Mod List -->
+            <CollectionViewSource x:Key="FilteredItems" Source="{Binding Files, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsLiveFilteringRequested="True">
+                <!-- Filtering setup in code behind. -->
+            </CollectionViewSource>
+        </Grid.Resources>
+
+        <TextBlock Text="Drop CPK onto this Window to Open" Style="{DynamicResource DefaultTextBlock}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding ShowDragDropText}" FontSize="{DynamicResource FontSizeLargest}"
+                   Margin="0,0,0,10"/>
+        
+        <!-- Item List -->
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Visibility="{Binding ShowItemList}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <TextBox x:Name="ItemsFilter" Style="{DynamicResource TextboxWithPlaceholder}" Grid.Row="0"
+                     Tag="Search Items" TextChanged="ItemsFilter_TextChanged"/>
+
+            <controls:DataGridEx Grid.Row="1" Style="{DynamicResource DefaultDataGrid}"
+                ItemsSource="{Binding Source={StaticResource FilteredItems}}"
+                SelectedItemsList="{Binding SelectedItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectionMode="Extended"
+                CanUserResizeColumns="False" CanUserResizeRows="False" CanUserAddRows="False"
+                CanUserDeleteRows="False" CanUserSortColumns="False" CanUserReorderColumns="False"
+                IsReadOnly="True" AutoGenerateColumns="False" Margin="0,0,0,10"
+                ToolTipService.InitialShowDelay="0" ToolTip="Hold Shift to MultiSelect, Ctrl+A to Select All.">
+
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Extract Selected" Click="Extract_Click" />
+                        <MenuItem Header="Extract All" Click="ExtractAll_Click" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Path" Binding="{Binding FullPath}" Width="*" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Ratio" Binding="{Binding CompressionRatio}" Width="Auto" IsReadOnly="True" />
+                    <DataGridTextColumn Header="File Size" Binding="{Binding HumanSize}" Width="Auto" MinWidth="100" IsReadOnly="True" />
+                </DataGrid.Columns>
+            </controls:DataGridEx>
+
+            <TextBlock Text="Right Click for Options" Style="{DynamicResource DefaultTextBlock}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2"/>
+        </Grid>
+
+    </Grid>
+</default:ReloadedWindow>

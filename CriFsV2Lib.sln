@@ -1,10 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriFsV2Lib", "CriFsV2Lib\CriFsV2Lib.csproj", "{94B4A638-EEEB-4925-B0DF-9B3E2AD2D566}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33103.201
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriFsV2Lib", "CriFsV2Lib\CriFsV2Lib.csproj", "{94B4A638-EEEB-4925-B0DF-9B3E2AD2D566}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriFsV2Lib.Tests", "CriFsV2Lib.Tests\CriFsV2Lib.Tests.csproj", "{BBC10F7B-2669-4F77-9E61-80231043311A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriFsV2Lib.Tests", "CriFsV2Lib.Tests\CriFsV2Lib.Tests.csproj", "{BBC10F7B-2669-4F77-9E61-80231043311A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriFsV2Lib.Benchmarks", "CriFsV2Lib.Benchmarks\CriFsV2Lib.Benchmarks.csproj", "{8B8CDAAF-4546-4125-BE63-24BF6B03CF0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CriFsV2Lib.Benchmarks", "CriFsV2Lib.Benchmarks\CriFsV2Lib.Benchmarks.csproj", "{8B8CDAAF-4546-4125-BE63-24BF6B03CF0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriFsLib.GUI", "CriFsLib.GUI\CriFsLib.GUI.csproj", "{2E9D5D59-5715-4352-8F64-0B7963F2C243}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +29,15 @@ Global
 		{8B8CDAAF-4546-4125-BE63-24BF6B03CF0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B8CDAAF-4546-4125-BE63-24BF6B03CF0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B8CDAAF-4546-4125-BE63-24BF6B03CF0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E9D5D59-5715-4352-8F64-0B7963F2C243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E9D5D59-5715-4352-8F64-0B7963F2C243}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E9D5D59-5715-4352-8F64-0B7963F2C243}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E9D5D59-5715-4352-8F64-0B7963F2C243}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {251D5697-6DDF-4D90-87B1-8C9D6A7ED6E5}
 	EndGlobalSection
 EndGlobal

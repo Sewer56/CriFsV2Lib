@@ -1,7 +1,9 @@
-﻿using System.ComponentModel;
+﻿using CriFsV2Lib.Structs;
+using System.ComponentModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
+using static CriFsV2Lib.CpkHelper;
 
 namespace CriFsV2Lib.Encryption.Game;
 
@@ -20,7 +22,7 @@ public static unsafe class P5RCrypto
     /// Number of bytes to decrypt.
     /// </summary>
     public const int NumBytesToDecrypt = 0x400;
-    
+
     /*
          In-place encryption mechanism used by Persona 5 Royal.
          Present on PC and PS4 JP version (not used in US PS4).
@@ -33,7 +35,18 @@ public static unsafe class P5RCrypto
          
          Credit: Lipsum/Zarroboogs for providing the original reference decryption code. 
     */
-    
+
+    /// <summary>
+    /// Checks if the file ie encrypted using the user string.
+    /// </summary>
+    /// <param name="userString">The user/attribute string tied to the file entry in CPK. i.e. <see cref="CpkFile.UserString"/></param>
+    public static bool IsEncrypted(string userString) => userString.Equals("CRI_CFATTR:ENCRYPT");
+
+    /// <summary>
+    /// Returns the decryption function for this crypto scheme.
+    /// </summary>
+    public static InPlaceDecryptionFunction DecryptionFunction => DecryptionFn;
+
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void DecryptInPlace(byte* dataPtr, int dataLength)
     {
@@ -182,5 +195,11 @@ public static unsafe class P5RCrypto
             dataPtr += 4;
         } 
         while (dataPtr < maxDataPtr);
+    }
+
+    private static void DecryptionFn(in CpkFile file, byte* dataPtr, int dataLength)
+    {
+        if (file.UserString != null && IsEncrypted(file.UserString))
+            DecryptInPlace(dataPtr, dataLength);
     }
 }

@@ -11,5 +11,10 @@
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests.Table_CanReadMetadata&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests.TocFinder_CanFindToc&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.TableReadTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests.ReadFiles_FromStream&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests.GetFileInfo_FromFile&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests.ExtractFile&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests.ExtractFile_Uncompressed&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.Game.P5R&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -13,7 +13,7 @@ public unsafe class CompressionTests
         fixed (byte* dataPtr = data)
         {
             var decompressedOld = CriPakToolsCriLayla.DecompressLegacyCRI(data, data.Length);
-            var decompressed = Compression.CriLayla.Decompress(dataPtr);
+            var decompressed = Compression.CriLayla.DecompressToArray(dataPtr);
             Assert.Equal(unmodifiedData, decompressedOld);
             Assert.Equal(unmodifiedData, decompressed);
         }
@@ -26,7 +26,7 @@ public unsafe class CompressionTests
         var unmodifiedData = File.ReadAllBytes(Assets.SampleUncompressedModelFile);
         fixed (byte* dataPtr = data)
         {
-            var decompressed = Compression.CriLayla.Decompress(dataPtr);
+            var decompressed = Compression.CriLayla.DecompressToArray(dataPtr);
             Assert.Equal(unmodifiedData, decompressed);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using CriFsV2Lib.Utilities;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace CriFsV2Lib.Compression;
@@ -71,122 +72,139 @@ public static unsafe class CriLayla
     */
     
     // Note: SkipLocalsInit would be nice but it ruins loop alignment
-    public static byte[] Decompress(byte* input)
+    public static byte[] DecompressToArray(byte* input)
     {
         // Read sizes from header.
         int uncompSizeOfCompData = *(int*)(input + 8);
         int uncompHeaderOffset = *(int*)(input + 12);
 
         // Create array for Result
-        byte[] result = GC.AllocateUninitializedArray<byte>(uncompSizeOfCompData + UncompressedDataSize);
+        var result = GC.AllocateUninitializedArray<byte>(uncompSizeOfCompData + UncompressedDataSize);
         fixed (byte* resultPtr = result)
-        {
-            // Copy uncompressed 0x100 header (after compressed data) to start of file
-            byte* uncompressedDataPtr = input + uncompHeaderOffset + 0x10;
-            Unsafe.CopyBlockUnaligned(resultPtr, uncompressedDataPtr, UncompressedDataSize);
-            
-            // Pointer to which we're copying data to.
-            byte* writePtr = resultPtr + UncompressedDataSize + uncompSizeOfCompData - 1;
-            byte* minAddr = resultPtr + UncompressedDataSize;
-            
-            // Bitstream State
-            byte* compressedDataPtr = uncompressedDataPtr;
-            int bitsTillNextByte = 0; // Bits left in the bitstream.
-            
-            while (writePtr >= minAddr) // Check if we're done writing from end
-            {
-                // Check for 1 bit compression flag.
-                if (GetNextBit(ref compressedDataPtr, ref bitsTillNextByte) > 0)
-                {
-                    int offset = Read13(ref compressedDataPtr, ref bitsTillNextByte) + MinCopyLength;
-                    int length = MinCopyLength;
+            Decompress(input, resultPtr, uncompSizeOfCompData, uncompHeaderOffset);
+        
+        return result;
+    }
 
-                    // Read variable fibonnaci length (unrolled).
-                    int thisLevel = Read2(ref compressedDataPtr, ref bitsTillNextByte);
+    public static ArrayRental<byte> DecompressToArrayPool(byte* input)
+    {
+        // Read sizes from header.
+        int uncompSizeOfCompData = *(int*)(input + 8);
+        int uncompHeaderOffset = *(int*)(input + 12);
+
+        // Create array for Result
+        var result = new ArrayRental<byte>(uncompSizeOfCompData + UncompressedDataSize);
+        fixed (byte* resultPtr = result.RawArray)
+            Decompress(input, resultPtr, uncompSizeOfCompData, uncompHeaderOffset);
+        
+        return result;
+    }
+
+    private static void Decompress(byte* input, byte* output, int uncompSizeOfCompData, int uncompHeaderOffset)
+    {
+        // Copy uncompressed 0x100 header (after compressed data) to start of file
+        byte* uncompressedDataPtr = input + uncompHeaderOffset + 0x10;
+        Unsafe.CopyBlockUnaligned(output, uncompressedDataPtr, UncompressedDataSize);
+
+        // Pointer to which we're copying data to.
+        byte* writePtr = output + UncompressedDataSize + uncompSizeOfCompData - 1;
+        byte* minAddr = output + UncompressedDataSize;
+
+        // Bitstream State
+        byte* compressedDataPtr = uncompressedDataPtr;
+        int bitsTillNextByte = 0; // Bits left in the bitstream.
+
+        while (writePtr >= minAddr) // Check if we're done writing from end
+        {
+            // Check for 1 bit compression flag.
+            if (GetNextBit(ref compressedDataPtr, ref bitsTillNextByte) > 0)
+            {
+                int offset = Read13(ref compressedDataPtr, ref bitsTillNextByte) + MinCopyLength;
+                int length = MinCopyLength;
+
+                // Read variable fibonnaci length (unrolled).
+                int thisLevel = Read2(ref compressedDataPtr, ref bitsTillNextByte);
+                length += thisLevel;
+
+                if (thisLevel == ((1 << 2) - 1))
+                {
+                    thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 3);
                     length += thisLevel;
 
-                    if (thisLevel == ((1 << 2) - 1))
+                    if (thisLevel == ((1 << 3) - 1))
                     {
-                        thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 3);
+                        thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 5);
                         length += thisLevel;
-                        
-                        if (thisLevel == ((1 << 3) - 1))
-                        {
-                            thisLevel = ReadMax8(ref compressedDataPtr, ref bitsTillNextByte, 5);
-                            length += thisLevel;
-                            
-                            if (thisLevel == ((1 << 5) - 1))
-                            {
-                                do
-                                {
-                                    thisLevel = Read8(ref compressedDataPtr, ref bitsTillNextByte);
-                                    length += thisLevel;
-                                } 
-                                while (thisLevel == byte.MaxValue); // 0b11111111
-                            }
-                        }
-                    }
 
-                    // LZ77 Copy Below.
-                    
-                    // The optimal way to write this loop depends on average length of copy, 
-                    // and average length of copy depends on the data we're dealing with.  
-                    
-                    // As such, this would vary per files.
-                    // For text, length tends to be around 6 on average, for models around 9. 
-                    // In this implementation we'll put bias towards short copies where length < 10.
-                    
-                    // Note: Min length is 3 (also seems to be most common length), so we can keep that out of the
-                    // loop and make best use of pipelining.
-                    
-                    *writePtr = writePtr[offset];
-                    *(writePtr - 1) = (writePtr - 1)[offset];
-                    *(writePtr - 2) = (writePtr - 2)[offset];
-                    
-                    const int defaultPipelineLength = 3; // Pipeline as in 'CPU Pipelining'
-                    const int extraPipelineLength = 8;
-                    
-                    if (length < extraPipelineLength)
-                    {
-                        writePtr -= defaultPipelineLength;
-                        if (length == defaultPipelineLength) 
-                            continue;
-                        
-                        var numLeft = length - defaultPipelineLength;
-                        for (int x = 0; x < numLeft; x++)
+                        if (thisLevel == ((1 << 5) - 1))
                         {
-                            *writePtr = writePtr[offset];
-                            writePtr--;
+                            do
+                            {
+                                thisLevel = Read8(ref compressedDataPtr, ref bitsTillNextByte);
+                                length += thisLevel;
+                            }
+                            while (thisLevel == byte.MaxValue); // 0b11111111
                         }
                     }
-                    else
+                }
+
+                // LZ77 Copy Below.
+
+                // The optimal way to write this loop depends on average length of copy, 
+                // and average length of copy depends on the data we're dealing with.  
+
+                // As such, this would vary per files.
+                // For text, length tends to be around 6 on average, for models around 9. 
+                // In this implementation we'll put bias towards short copies where length < 10.
+
+                // Note: Min length is 3 (also seems to be most common length), so we can keep that out of the
+                // loop and make best use of pipelining.
+
+                *writePtr = writePtr[offset];
+                *(writePtr - 1) = (writePtr - 1)[offset];
+                *(writePtr - 2) = (writePtr - 2)[offset];
+
+                const int defaultPipelineLength = 3; // Pipeline as in 'CPU Pipelining'
+                const int extraPipelineLength = 8;
+
+                if (length < extraPipelineLength)
+                {
+                    writePtr -= defaultPipelineLength;
+                    if (length == defaultPipelineLength)
+                        continue;
+
+                    var numLeft = length - defaultPipelineLength;
+                    for (int x = 0; x < numLeft; x++)
                     {
-                        *(writePtr - 3) = (writePtr - 3)[offset];
-                        *(writePtr - 4) = (writePtr - 4)[offset];
-                        *(writePtr - 5) = (writePtr - 5)[offset];
-                        *(writePtr - 6) = (writePtr - 6)[offset];
-                        *(writePtr - 7) = (writePtr - 7)[offset];
-                        writePtr -= extraPipelineLength;
-                        var numLeft = length - extraPipelineLength;
-                        for (int i = 0; i < numLeft; i++)
-                        {
-                            *writePtr = writePtr[offset];
-                            writePtr--;
-                        }
+                        *writePtr = writePtr[offset];
+                        writePtr--;
                     }
                 }
                 else
                 {
-                    // verbatim byte
-                    *writePtr = Read8(ref compressedDataPtr, ref bitsTillNextByte);
-                    writePtr--;
+                    *(writePtr - 3) = (writePtr - 3)[offset];
+                    *(writePtr - 4) = (writePtr - 4)[offset];
+                    *(writePtr - 5) = (writePtr - 5)[offset];
+                    *(writePtr - 6) = (writePtr - 6)[offset];
+                    *(writePtr - 7) = (writePtr - 7)[offset];
+                    writePtr -= extraPipelineLength;
+                    var numLeft = length - extraPipelineLength;
+                    for (int i = 0; i < numLeft; i++)
+                    {
+                        *writePtr = writePtr[offset];
+                        writePtr--;
+                    }
                 }
             }
-
-            return result;
+            else
+            {
+                // verbatim byte
+                *writePtr = Read8(ref compressedDataPtr, ref bitsTillNextByte);
+                writePtr--;
+            }
         }
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte GetNextBit(ref byte* compressedDataPtr, ref int bitsLeft)
     {

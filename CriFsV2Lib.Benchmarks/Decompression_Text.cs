@@ -36,6 +36,6 @@ public unsafe class Decompression_Text
     [Benchmark]
     public byte[] CriFsLib()
     {
-        return Compression.CriLayla.Decompress(_dataPtr);
+        return Compression.CriLayla.DecompressToArray(_dataPtr);
     }
 }

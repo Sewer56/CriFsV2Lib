@@ -35,7 +35,8 @@ var files = CpkHelper.GetFilesFromStream(fileStream);
 
 Extract a File:  
 ```csharp
-var file = CpkHelper.ExtractFile(files[0], fileStream)
+using var file = CpkHelper.ExtractFile(files[0], fileStream)
+// Access via file.Span
 ```
 
 You can pass in optional decryption function.  

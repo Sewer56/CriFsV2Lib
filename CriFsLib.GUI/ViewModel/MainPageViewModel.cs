@@ -52,14 +52,15 @@ public class MainPageViewModel : ObservableObject
                 var file = files[x];
 
                 // Extract
-                var data = CpkHelper.ExtractFile(file.File, fileStream, P5RCrypto.DecryptionFunction);
+                using var data = CpkHelper.ExtractFile(file.File, fileStream, P5RCrypto.DecryptionFunction);
                 var path = Path.Combine(folder, file.FullPath);
 
                 // Create Directory
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
                 // Write to disk.
-                File.WriteAllBytes(path, data);
+                using var outputStream = new FileStream(path, FileMode.Create);
+                outputStream.Write(data.Span);
             }
         });
     }

@@ -57,9 +57,9 @@ public class HighLevelApiTests
         
         using var fileStream = new FileStream(Assets.SampleCpkFile, FileMode.Open);
         var files = CpkHelper.GetFilesFromStream(fileStream);
-        var extractedFile = CpkHelper.ExtractFile(files[2], fileStream);
+        using var extractedFile = CpkHelper.ExtractFile(files[2], fileStream);
         
-        Assert.Equal(originalFile, extractedFile);
+        Assert.Equal(originalFile, extractedFile.Span.ToArray());
     }
     
     [Fact]
@@ -70,8 +70,8 @@ public class HighLevelApiTests
         
         using var fileStream = new FileStream(Assets.SampleCpkFile, FileMode.Open);
         var files = CpkHelper.GetFilesFromStream(fileStream);
-        var extractedFile = CpkHelper.ExtractFile(files[1], fileStream);
+        using var extractedFile = CpkHelper.ExtractFile(files[1], fileStream);
         
-        Assert.Equal(originalFile, extractedFile);
+        Assert.Equal(originalFile, extractedFile.Span.ToArray());
     }
 }

@@ -39,8 +39,8 @@ public unsafe class CompressionTests
         fixed (byte* unmodifiedPtr = unmodifiedData)
         fixed (byte* dataPtr = data)
         {
-            Assert.True(Compression.CriLayla.IsCompressed(dataPtr));
-            Assert.False(Compression.CriLayla.IsCompressed(unmodifiedPtr));
+            Assert.True(Compression.CriLayla.IsCompressed(dataPtr, out _));
+            Assert.False(Compression.CriLayla.IsCompressed(unmodifiedPtr, out _));
         }
     }
 }

@@ -24,8 +24,13 @@ public static class CpkHelper
     /// <returns>Extracted data.</returns>
     public static unsafe byte[] ExtractFile(in CpkFile file, Stream stream, InPlaceDecryptionFunction? decrypt = null)
     {
+        // Just in case empty file is stored.
+        if (file.FileSize == 0)
+            return Array.Empty<byte>();
+
         // Note: In theory we could read in chunks and decompress on the fly, incurring
         // less memory allocation; however, this is incompatible with decryption function.  
+        int compressedDataSize;
         var rawData = GC.AllocateUninitializedArray<byte>(file.FileSize);
         stream.Position = file.FileOffset;
         stream.TryReadSafe(rawData);
@@ -34,9 +39,23 @@ public static class CpkHelper
         fixed (byte* dataPtr = rawData)
         {
             decrypt?.Invoke(file, dataPtr, rawData.Length);
-            return !CriLayla.IsCompressed(dataPtr) 
-                ? rawData 
-                : CriLayla.Decompress(dataPtr);
+            if (!CriLayla.IsCompressed(dataPtr, out compressedDataSize))
+                return rawData;
+
+            if (rawData.Length >= compressedDataSize)
+                return CriLayla.Decompress(dataPtr);
+        }
+
+        // In some cases CRI can pack archives with incorrect size (e.g. 130 when file is several MBs).
+        // We need to doublecheck with the compression header.
+        rawData = GC.AllocateUninitializedArray<byte>(compressedDataSize);
+        stream.Position = file.FileOffset;
+        stream.TryReadSafe(rawData);
+
+        fixed (byte* dataPtr = rawData)
+        {
+            decrypt?.Invoke(file, dataPtr, rawData.Length);
+            return CriLayla.Decompress(dataPtr);
         }
     }
 

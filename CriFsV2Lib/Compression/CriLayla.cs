@@ -22,8 +22,14 @@ public static unsafe class CriLayla
     /// Checks if a file is compressed by checking the signature at the start of it.
     /// </summary>
     /// <param name="data">Pointer to start of the file data.</param>
+    /// <param name="compressedDataSize">Size of compressed data.</param>
     /// <returns>True if compressed, else false.</returns>
-    public static bool IsCompressed(byte* data) => *(long*)data == 0x414C59414C495243;
+    public static bool IsCompressed(byte* data, out int compressedDataSize) 
+    {
+        var result = *(long*)data == 0x414C59414C495243;
+        compressedDataSize = *(int*)(data + 12) + 0x10 + UncompressedDataSize;
+        return result; 
+    }
 
     /*
         Explanation of CRILayla

@@ -27,7 +27,6 @@ public class MainPageViewModel : ObservableObject
             return; 
 
         ExtractItems(folderPath, SelectedItems.Cast<CpkFileModel>().ToArray());
-        ArrayRental.Reset(); // Don't keep around in memory in case user leaves application idle.
     }
 
     internal void ExtractAll()

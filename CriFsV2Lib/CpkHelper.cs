@@ -10,6 +10,62 @@ namespace CriFsV2Lib;
 public static class CpkHelper
 {
     /// <summary>
+    /// Extracts the file from the CPK without decompressing it using CRILAYLA.
+    /// </summary>
+    /// <param name="file">The file to extract from the archive.</param>
+    /// <param name="stream">
+    ///     A stream which should start at the beginning of the CPK file.
+    /// </param>
+    /// <param name="decrypt">
+    ///    Optional function for decrypting the data.
+    ///    The CRI SDK allows for users to encrypt files in-place, so if your game has some custom encryption, pass it here.
+    /// </param>
+    /// <param name="needsDecompression">
+    ///    True if the file will need to be decompressed with <see cref="CriLayla.DecompressToArrayPool"/>.
+    /// </param>
+    /// <returns>Extracted data.</returns>
+    public static unsafe ArrayRental<byte> ExtractFileNoDecompression(in CpkFile file, Stream stream, out bool needsDecompression, InPlaceDecryptionFunction? decrypt = null)
+    {
+        // Just in case empty file is stored.
+        needsDecompression = false;
+        if (file.FileSize == 0)
+            return ArrayRental<byte>.Empty;
+
+        // Note: In theory we could read in chunks and decompress on the fly, incurring
+        // less memory allocation; however, this is incompatible with decryption function.  
+        int compressedDataSize;
+        var rawData = new ArrayRental<byte>(file.FileSize);
+        stream.Position = file.FileOffset;
+        stream.ReadAtLeast(rawData.Span, rawData.Count);
+
+        // Run decryption func if needed.
+        fixed (byte* dataPtr = rawData.RawArray)
+        {
+            decrypt?.Invoke(file, dataPtr, rawData.Count);
+            needsDecompression = CriLayla.IsCompressed(dataPtr, out compressedDataSize);
+            if (!needsDecompression)
+                return rawData;
+
+            if (rawData.Count >= compressedDataSize)
+                return rawData;
+        }
+
+        rawData.Dispose();
+
+        // In some cases CRI can pack archives with incorrect size (e.g. 130 when file is several MBs).
+        // We need to doublecheck with the compression header.
+        rawData = new ArrayRental<byte>(compressedDataSize);
+        stream.Position = file.FileOffset;
+        stream.ReadAtLeast(rawData.Span, rawData.Count);
+
+        fixed (byte* dataPtr = rawData.RawArray)
+        {
+            decrypt?.Invoke(file, dataPtr, rawData.Count);
+            return rawData;
+        }
+    }
+
+    /// <summary>
     /// Gets all of the file data info within a CPK file from a stream.
     /// Use when CPK file is big, e.g. reading 2GB+ file.
     /// </summary>
@@ -28,39 +84,12 @@ public static class CpkHelper
         if (file.FileSize == 0)
             return ArrayRental<byte>.Empty;
 
-        // Note: In theory we could read in chunks and decompress on the fly, incurring
-        // less memory allocation; however, this is incompatible with decryption function.  
-        int compressedDataSize;
-        var rawData = new ArrayRental<byte>(file.FileSize);
-        stream.Position = file.FileOffset;
-        stream.ReadAtLeast(rawData.Span, rawData.Count);
-        
-        // Run decryption func if needed.
-        fixed (byte* dataPtr = rawData.RawArray)
-        {
-            decrypt?.Invoke(file, dataPtr, rawData.Count);
-            if (!CriLayla.IsCompressed(dataPtr, out compressedDataSize))
-                return rawData;
-
-            if (rawData.Count >= compressedDataSize)
-            {
-                var result = CriLayla.DecompressToArrayPool(dataPtr);
-                rawData.Dispose();
-                return result;
-            }
-        }
-
-        rawData.Dispose();
-
-        // In some cases CRI can pack archives with incorrect size (e.g. 130 when file is several MBs).
-        // We need to doublecheck with the compression header.
-        rawData = new ArrayRental<byte>(compressedDataSize);
-        stream.Position = file.FileOffset;
-        stream.ReadAtLeast(rawData.Span, rawData.Count);
+        var rawData = ExtractFileNoDecompression(file, stream, out var needsDecompression, decrypt);
+        if (!needsDecompression)
+            return rawData;
 
         fixed (byte* dataPtr = rawData.RawArray)
         {
-            decrypt?.Invoke(file, dataPtr, rawData.Count);
             var result = CriLayla.DecompressToArrayPool(dataPtr);
             rawData.Dispose();
             return result;

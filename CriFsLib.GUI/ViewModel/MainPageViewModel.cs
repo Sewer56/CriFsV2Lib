@@ -42,11 +42,18 @@ public class MainPageViewModel : ObservableObject
     private void ExtractItems(string folder, List<CpkFileModel> files)
     {
         // TODO: Selectable crypto function when we add more.
+        var readOptions = new FileStreamOptions()
+        {
+            Access = FileAccess.Read,
+            BufferSize = 0,
+            Mode = FileMode.Open,
+            Options = FileOptions.SequentialScan
+        };
 
         // Extract in Parallel
         Parallel.ForEach(Partitioner.Create(0, files.Count), (range, loopState) =>
         {
-            using var fileStream = new FileStream(CurrentFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var fileStream = new FileStream(CurrentFilePath, readOptions);
             for (int x = range.Item1; x < range.Item2; x++)
             {
                 var file = files[x];
@@ -59,7 +66,13 @@ public class MainPageViewModel : ObservableObject
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
                 // Write to disk.
-                using var outputStream = new FileStream(path, FileMode.Create);
+                using var outputStream = new FileStream(path, new FileStreamOptions()
+                {
+                    Access = FileAccess.Write,
+                    BufferSize = 0,
+                    Mode = FileMode.Create,
+                    PreallocationSize = data.Span.Length
+                });
                 outputStream.Write(data.Span);
             }
         });

@@ -1,6 +1,5 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
-using System.Transactions;
 
 namespace CriFsV2Lib.Utilities;
 
@@ -11,28 +10,28 @@ namespace CriFsV2Lib.Utilities;
 /// Represents a temporary array rental from the runtime's ArrayPool.
 /// </summary>
 /// <typeparam name="T">Type of element to be rented from the runtime.</typeparam>
-public struct ArrayRental<T> : IDisposable
+public struct ArrayRental : IDisposable
 {
     /// <summary>
     /// Empty rental.
     /// </summary>
-    public static readonly ArrayRental<T> Empty;
+    public static readonly ArrayRental Empty;
 
     static ArrayRental()
     {
         Reset();
-        Empty = new ArrayRental<T>(0, false);
+        Empty = new ArrayRental(0, false);
     }
 
-    private T[] _data;
+    private byte[] _data;
     private int _count;
     private bool _canDispose;
-    private static ArrayPool<T> _dataPool = null!;
+    private static ArrayPool<byte> _dataPool = null!;
 
     /// <summary>
     /// Resets the data pool allowing memory to be reclaimed.
     /// </summary>
-    public static void Reset() => _dataPool = ArrayPool<T>.Create(1024 * 1024 * 64, Environment.ProcessorCount); // 64MB
+    public static void Reset() => _dataPool = ArrayPool<byte>.Create(1024 * 1024 * 64, Environment.ProcessorCount); // 64MB
 
     /// <summary>
     /// Rents an array of bytes from the arraypool.
@@ -55,12 +54,12 @@ public struct ArrayRental<T> : IDisposable
     /// Exposes the raw underlying array, which will likely
     /// be bigger than the number of elements.
     /// </summary>
-    public T[] RawArray => _data;
+    public byte[] RawArray => _data;
 
     /// <summary>
     /// Returns the rented array as a span.
     /// </summary>
-    public Span<T> Span => MemoryMarshal.CreateSpan(ref MemoryMarshal.GetArrayDataReference(_data), _count);
+    public Span<byte> Span => MemoryMarshal.CreateSpan(ref MemoryMarshal.GetArrayDataReference(_data), _count);
 
     /// <summary>
     /// Exposes the number of elements stored by this structure.
@@ -70,7 +69,7 @@ public struct ArrayRental<T> : IDisposable
     /// <summary>
     /// Returns a reference to the first element.
     /// </summary>
-    public ref T FirstElement => ref GetFirstElement();
+    public ref byte FirstElement => ref GetFirstElement();
 
     /// <summary>
     /// Returns the array to the pool.
@@ -84,5 +83,5 @@ public struct ArrayRental<T> : IDisposable
     /// <summary>
     /// Returns a reference to the first element.
     /// </summary>
-    private ref T GetFirstElement() => ref MemoryMarshal.GetArrayDataReference(_data);
+    private ref byte GetFirstElement() => ref MemoryMarshal.GetArrayDataReference(_data);
 }

@@ -96,7 +96,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
         }
     }
 
-    private unsafe void Decompress(ArrayRental<byte> data, string fullPath)
+    private unsafe void Decompress(ArrayRental data, string fullPath)
     {
         try
         {
@@ -150,9 +150,9 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
     private struct FilePipelineItem
     {
         public string fullPath; 
-        public ArrayRental<byte> data;
+        public ArrayRental data;
 
-        public FilePipelineItem(string fullPath, ArrayRental<byte> data)
+        public FilePipelineItem(string fullPath, ArrayRental data)
         {
             this.fullPath = fullPath;
             this.data = data;

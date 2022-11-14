@@ -86,14 +86,14 @@ public static unsafe class CriLayla
         return result;
     }
 
-    public static ArrayRental<byte> DecompressToArrayPool(byte* input)
+    public static ArrayRental DecompressToArrayPool(byte* input)
     {
         // Read sizes from header.
         int uncompSizeOfCompData = *(int*)(input + 8);
         int uncompHeaderOffset = *(int*)(input + 12);
 
         // Create array for Result
-        var result = new ArrayRental<byte>(uncompSizeOfCompData + UncompressedDataSize);
+        var result = new ArrayRental(uncompSizeOfCompData + UncompressedDataSize);
         fixed (byte* resultPtr = result.RawArray)
             Decompress(input, resultPtr, uncompSizeOfCompData, uncompHeaderOffset);
         

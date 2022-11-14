@@ -24,17 +24,17 @@ public static class CpkHelper
     ///    True if the file will need to be decompressed with <see cref="CriLayla.DecompressToArrayPool"/>.
     /// </param>
     /// <returns>Extracted data.</returns>
-    public static unsafe ArrayRental<byte> ExtractFileNoDecompression(in CpkFile file, Stream stream, out bool needsDecompression, InPlaceDecryptionFunction? decrypt = null)
+    public static unsafe ArrayRental ExtractFileNoDecompression(in CpkFile file, Stream stream, out bool needsDecompression, InPlaceDecryptionFunction? decrypt = null)
     {
         // Just in case empty file is stored.
         needsDecompression = false;
         if (file.FileSize == 0)
-            return ArrayRental<byte>.Empty;
+            return ArrayRental.Empty;
 
         // Note: In theory we could read in chunks and decompress on the fly, incurring
         // less memory allocation; however, this is incompatible with decryption function.  
         int compressedDataSize;
-        var rawData = new ArrayRental<byte>(file.FileSize);
+        var rawData = new ArrayRental(file.FileSize);
         stream.Position = file.FileOffset;
         stream.ReadAtLeast(rawData.Span, rawData.Count);
 
@@ -54,7 +54,7 @@ public static class CpkHelper
 
         // In some cases CRI can pack archives with incorrect size (e.g. 130 when file is several MBs).
         // We need to doublecheck with the compression header.
-        rawData = new ArrayRental<byte>(compressedDataSize);
+        rawData = new ArrayRental(compressedDataSize);
         stream.Position = file.FileOffset;
         stream.ReadAtLeast(rawData.Span, rawData.Count);
 
@@ -78,11 +78,11 @@ public static class CpkHelper
     ///    The CRI SDK allows for users to encrypt files in-place, so if your game has some custom encryption, pass it here.
     /// </param>
     /// <returns>Extracted data.</returns>
-    public static unsafe ArrayRental<byte> ExtractFile(in CpkFile file, Stream stream, InPlaceDecryptionFunction? decrypt = null)
+    public static unsafe ArrayRental ExtractFile(in CpkFile file, Stream stream, InPlaceDecryptionFunction? decrypt = null)
     {
         // Just in case empty file is stored.
         if (file.FileSize == 0)
-            return ArrayRental<byte>.Empty;
+            return ArrayRental.Empty;
 
         var rawData = ExtractFileNoDecompression(file, stream, out var needsDecompression, decrypt);
         if (!needsDecompression)

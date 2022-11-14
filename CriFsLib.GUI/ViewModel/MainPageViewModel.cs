@@ -27,6 +27,7 @@ public class MainPageViewModel : ObservableObject
             return; 
 
         ExtractItems(folderPath, SelectedItems.Cast<CpkFileModel>().ToArray());
+        ArrayRental.Reset(); // Don't keep around in memory in case user leaves application idle.
     }
 
     internal void ExtractAll()
@@ -35,6 +36,7 @@ public class MainPageViewModel : ObservableObject
             return;
 
         ExtractItems(folderPath, Files.ToArray()); // clone as we sort the array.
+        ArrayRental.Reset(); // Don't keep around in memory in case user leaves application idle.
     }
 
     private void ExtractItems(string folder, CpkFileModel[] files)

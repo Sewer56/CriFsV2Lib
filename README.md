@@ -22,18 +22,20 @@ Feature Support
 - Header Decryption.  
 - Custom User Decryption Functions.  
 
+A simple GUI application is provided to help you test/use the library.  
+
 Usage
 =====
 
 High Level API is available in the `CpkHelper` class.  
 
-Get File Info:  
+## Get File Info  
 ```csharp
 using var fileStream = new FileStream(Assets.SampleCpkFile, FileMode.Open);
 var files = CpkHelper.GetFilesFromStream(fileStream);
 ```
 
-Extract a File:  
+## Extract Individual File  
 ```csharp
 using var file = CpkHelper.ExtractFile(files[0], fileStream)
 // Access via file.Span
@@ -41,6 +43,44 @@ using var file = CpkHelper.ExtractFile(files[0], fileStream)
 
 You can pass in optional decryption function.  
 Lower level APIs will require partial understanding of the formats, have a look at the tests project.  
+
+## Extract Files in Batch
+
+The batch extractor can be used to efficiently extract multiple files in a multithreaded fashion.  
+⚠️ Uses heavy array pooling, risk of address space starvation in 32-bit processes!!  
+
+```csharp
+using var extractor = new BatchFileExtractor<ItemModel>(CpkPath);
+for (int x = 0; x < files.Length; x++)
+    extractor.QueueItem(new CpkFileExtractorItemModel(Path.Combine(folder, files[x].FullPath), files[x]));
+
+extractor.WaitForCompletion();
+```
+
+## Clearing Memory
+
+❗ The library makes use of array pooling to speed up operations.  
+
+Once you are done with using the library, consider clearing the array pool:  
+```csharp
+ArrayRental.Reset();
+```
+
+This will clear the pool, allowing the memory to be freed.  
+
+📝 You might notice a large Private Working Set (RAM Usage) in Task Manager persisting for a while when running with GC Regions (.NET 7).  
+*This is as intended and is not something you should be worried about*.  
+
+This memory of the UOH (LOH and POH) will be fully decommitted when the GC sees fit, (usually after next Gen 2 GC or when a low RAM notification is received from the OS).  
+
+If this however still bothers you, or you know you're not going to use the library again, request a GC with pressure:  
+```csharp
+GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+GC.AddMemoryPressure(int.MaxValue);
+GC.Collect(); // will clean up LOH
+GC.RemoveMemoryPressure(int.MaxValue);
+// Memory will be fully decommitted shortly after this line (next GC of any kind)
+```
 
 Performance
 ===========
@@ -79,7 +119,10 @@ Parsing a 30GB encrypted/scrambled CPK with 45000 files:
 | ParseTable | 8.469 ms | 0.1660 ms | 0.3276 ms | 984.3750 | 968.7500 | 546.8750 |   6.44 MB |
 ```
 
-[`CriPak` is the reference implementation from [CriPakTools](https://github.com/wmltogether/CriPakTools)].
+[`CriPak` is the reference implementation from [CriPakTools](https://github.com/wmltogether/CriPakTools)].  
+
+In practice, this library is always I/O (/FileSystem) bottlenecked.  
+6 cores of a modern CPU should be sufficient to saturate a modern NVMe SSD ()>3GB/s disk speed).  
 
 Resources
 =====
@@ -101,3 +144,4 @@ Credits
 
 - Aforementioned authors in 'Resources' section.  
 - Sano Shin'ichirou, yeah321: Cultured unit test data for decompression testing.  [Small Extract from Visual Novel.]  
+- Lipsum/Zarroboogs (Original P5R Encryption function for reference)

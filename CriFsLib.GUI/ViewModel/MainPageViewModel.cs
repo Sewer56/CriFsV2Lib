@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -42,6 +43,11 @@ public class MainPageViewModel : ObservableObject
 
         await ExtractItemsAsync(folderPath, Files.ToArray()); // clone as we sort the array.
         ArrayRental.Reset(); // Don't keep around in memory in case user leaves application idle.
+        
+        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+        GC.AddMemoryPressure(nint.MaxValue);
+        GC.Collect(); // will clean up LOH
+        GC.RemoveMemoryPressure(nint.MaxValue);
     }
 
     private async Task ExtractItemsAsync(string folder, CpkFileModel[] files)

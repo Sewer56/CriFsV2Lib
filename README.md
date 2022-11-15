@@ -111,7 +111,7 @@ Header decryption/descramble [2MB Header]:
 |         CriFsLib |   529.34 us | 3.844 us | 3.407 us |  0.29 | 331.0547 | 331.0547 | 331.0547 | 2097280 B |        1.00 |
 | CriFsLib_InPlace |    87.06 us | 1.241 us | 1.161 us |  0.05 |        - |        - |        - |         - |        0.00 |
 ```
-Is approximately 15 times faster than the in retail CRI games.
+Is approximately 15 times faster than the original implementation in retail CRI games.
 
 
 Parsing a 30GB encrypted/scrambled CPK with 45000 files:  

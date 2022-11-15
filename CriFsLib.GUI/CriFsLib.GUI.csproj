@@ -5,7 +5,8 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
-
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    
     <!-- IL Trimming Support for Framework Dependent Apps. Unofficial.
          If you set this to true, trimming will be enabled when you publish the app. -->
     <ReloadedILLink>true</ReloadedILLink>

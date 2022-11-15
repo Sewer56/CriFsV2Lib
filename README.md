@@ -6,8 +6,8 @@ A minimal library to extract contents from CRI Middleware's CPK archive format. 
 Goals:  
 - Clean codebase.  
 - Minimalist.  (does minimal amount of work)
-- Trimmable dependencies.  (min code used after Assembly Trimming)
-- High performance.  
+- No dependencies.  (entirely self contained in ~25KB library)
+- High performance.  (really, really fast)
 
 I wrote this library for my personal needs (i.e. for use with [CriFs.V2.Hook](https://github.com/Sewer56/CriFs.V2.Hook.ReloadedII) extensions).  
 Does not support packing/repacking; if you need that functionality, fire a pull request 😇.  
@@ -22,7 +22,9 @@ Feature Support
 - Header Decryption.  
 - Custom User Decryption Functions.  
 
-A simple GUI application is provided to help you test/use the library.  
+![WPF Application](./docs/images/gui.png)
+
+A basic standalone WPF application is also available for testing.
 
 Usage
 =====

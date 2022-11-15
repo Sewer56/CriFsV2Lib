@@ -1,0 +1,2 @@
+# Don't modify line endings for text files, will fail tests on LF based systems.
+*.txt	text eol=crlf

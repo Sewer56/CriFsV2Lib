@@ -51,7 +51,7 @@ jobs:
     - name: Test
       run: dotnet test -c Release ./CriFsV2Lib.sln --no-build --verbosity normal
       
-    - name: Publish Update Tool
+    - name: Publish Application
       run: |
         [System.IO.Directory]::CreateDirectory("$env:TOOLS_PATH")
         dotnet publish ./CriFsLib.GUI/CriFsLib.GUI.csproj -c Release -o "./Temp/GUI.Tool"
@@ -60,7 +60,7 @@ jobs:
     - name: Create NuGet Package Artifacts
       run: |
         [System.IO.Directory]::CreateDirectory("$env:PUBLISH_PACKAGES_PATH")
-        $items = Get-ChildItem -Path "." -Recurse | Where-Object { $_.Name -match "CriFsV2Lib*.nupkg" }
+        $items = Get-ChildItem -Path "." -Recurse | Where-Object { $_.Name -match "CriFsV2Lib.*.nupkg" }
         foreach ($item in $items)
         {
           Write-Host "Moving $item -> $env:PUBLISH_PACKAGES_PATH"
@@ -97,7 +97,7 @@ jobs:
         path: ${{ env.PUBLISH_CHANGELOG_PATH }}
         retention-days: 0
     
-    - name: Upload Tools Artifact
+    - name: Upload Application Artifact
       uses: actions/upload-artifact@v2.2.4
       with:
         # Artifact name

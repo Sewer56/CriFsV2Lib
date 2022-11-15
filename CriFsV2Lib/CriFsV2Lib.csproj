@@ -5,6 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Title>CRI CPK Extractor Lib</Title>
+        <Authors>Sewer56</Authors>
+        <Description>A minimal library to extract contents from CRI Middleware's CPK archive format.</Description>
+        <PackageProjectUrl>https://github.com/Sewer56/CriFsV2Lib</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Sewer56/CriFsV2Lib</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
 
 </Project>

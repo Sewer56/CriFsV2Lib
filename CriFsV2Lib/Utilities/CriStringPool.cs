@@ -11,7 +11,7 @@ namespace CriFsV2Lib.Utilities;
 /// </summary>
 public struct CriStringPool
 {
-    private string _lastString;
+    private string _lastString = null!;
     private int _lastOffset = -1;
 
     public CriStringPool() { }

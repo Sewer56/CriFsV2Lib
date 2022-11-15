@@ -8,7 +8,7 @@ namespace CriFsV2Lib.Structs;
 /// </summary>
 public unsafe ref struct CriTableMetadata
 {
-    private static Encoding Shift_JIS => CodePagesEncodingProvider.Instance.GetEncoding(932);
+    private static Encoding Shift_JIS => CodePagesEncodingProvider.Instance.GetEncoding(932)!;
     
     /// <summary>
     /// Base offset from which other offsets are relative to.

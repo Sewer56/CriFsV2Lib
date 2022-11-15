@@ -8,7 +8,7 @@ namespace CriFsV2Lib.Benchmarks;
 [MemoryDiagnoser]
 public unsafe class Decompression_Text
 {
-    private byte[] _data;
+    private byte[] _data = null!;
     private byte* _dataPtr;
     private GCHandle _handle;
     
@@ -24,7 +24,7 @@ public unsafe class Decompression_Text
     public void Cleanup()
     {
         _handle.Free();
-        _data = null;
+        _data = null!;
     }
 
     [Benchmark(Baseline = true)]

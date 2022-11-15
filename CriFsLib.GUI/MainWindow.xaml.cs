@@ -60,7 +60,7 @@ public partial class MainWindow : ReloadedWindow
 
     private void ItemsFilter_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) => _viewSource.View.Refresh();
 
-    private void Extract_Click(object sender, RoutedEventArgs e) => ViewModel.Extract();
+    private async void Extract_Click(object sender, RoutedEventArgs e) => await ViewModel.Extract();
 
-    private void ExtractAll_Click(object sender, RoutedEventArgs e) => ViewModel.ExtractAllAsync();
+    private async void ExtractAll_Click(object sender, RoutedEventArgs e) => await ViewModel.ExtractAllAsync();
 }

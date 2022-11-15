@@ -6,7 +6,7 @@ namespace CriFsV2Lib.Utilities;
 /// <summary>
 /// Extensions to the 'Stream' class.
 /// </summary>
-public static class StreamExtensions
+internal static class StreamExtensions
 {
     /// <summary>
     /// Reads a given number of bytes from a stream.

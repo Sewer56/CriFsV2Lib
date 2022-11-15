@@ -8,7 +8,7 @@ public static class Constants
     /// <summary>
     /// Names of fields. (Prevents unnecessary string conversion)
     /// </summary>
-    public unsafe static class Fields
+    public static unsafe class Fields
     {
         /// <summary>
         /// 'DirName', stores directory name for file.

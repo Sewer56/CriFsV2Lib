@@ -7,7 +7,7 @@ namespace CriFsV2Lib.Utilities;
 /// <summary>
 /// Provides native intrinsics support.
 /// </summary>
-public static unsafe class Intrinsics
+internal static unsafe class Intrinsics
 {
     /// <summary>
     /// Copies data between source and destination using SSE3.

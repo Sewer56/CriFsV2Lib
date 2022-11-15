@@ -32,7 +32,7 @@ public class CpkFileModel
     public CpkFileModel(in CpkFile file, string fullPath)
     {
         FullPath = fullPath;
-        CompressionRatio = ((float)file.FileSize / file.ExtractSize).ToString("00.0%");
+        CompressionRatio = ((float)file.FileSize / file.ExtractSize).ToString("##0.0%");
         HumanSize = ByteSize.FromBytes(file.ExtractSize).ToString();
         File = file;
     }

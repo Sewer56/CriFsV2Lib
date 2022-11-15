@@ -44,7 +44,7 @@
                 CanUserResizeColumns="False" CanUserResizeRows="False" CanUserAddRows="False"
                 CanUserDeleteRows="False" CanUserSortColumns="False" CanUserReorderColumns="False"
                 IsReadOnly="True" AutoGenerateColumns="False" Margin="0,0,0,10"
-                ToolTipService.InitialShowDelay="0" ToolTip="Hold Shift to MultiSelect, Ctrl+A to Select All.">
+                ToolTipService.InitialShowDelay="0" ToolTip="Use Ctrl+Click to Select Multiple Individually, Shift+Click to Select Multiple at Once.">
 
                 <DataGrid.ContextMenu>
                     <ContextMenu>
@@ -60,8 +60,17 @@
                 </DataGrid.Columns>
             </controls:DataGridEx>
 
-            <TextBlock Text="Right Click for Options" Style="{DynamicResource DefaultTextBlock}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2"/>
+            <Grid Grid.Row="2">
+
+                <TextBlock Text="{Binding NumItems}" Style="{DynamicResource DefaultTextBlock}"
+                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+                
+                <TextBlock Text="Right Click for Options" Style="{DynamicResource DefaultTextBlock}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                <TextBlock Text="{Binding Completion, FallbackValue='0.0% / 00:00'}" Style="{DynamicResource DefaultTextBlock}"
+                   HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
         </Grid>
 
     </Grid>

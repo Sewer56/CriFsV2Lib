@@ -22,9 +22,15 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
         Options = FileOptions.SequentialScan
     };
 
+    /// <summary>
+    /// Number of items processed.
+    /// </summary>
+    public int ItemsProcessed => _numItemsProcessed;
+
     private ConcurrentQueue<T> _extractItems = new ConcurrentQueue<T>();
     private int _numQueuedItems = 0;
     private int _numItemsProcessing = 0;
+    private int _numItemsProcessed = 0;
     private ConcurrentQueue<FilePipelineItem> _decompressItems = new ConcurrentQueue<FilePipelineItem>();
     private ConcurrentQueue<FilePipelineItem> _writeItems = new ConcurrentQueue<FilePipelineItem>();
 
@@ -70,10 +76,27 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
     /// <summary>
     /// Waits for completion of current items in a blocking fashion.
     /// </summary>
-    public void WaitForCompletion()
+    /// <param name="callback">Action to be executed between each wait period.</param>
+    public void WaitForCompletion(int timeBetweenCallbacks = 64, Action? callback = null)
     {
         while (_numQueuedItems > 0)
-            Thread.Sleep(SleepTime);
+        {
+            Thread.Sleep(timeBetweenCallbacks);
+            callback?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// Waits for completion of current items in a non-blocking fashion.
+    /// </summary>
+    /// <param name="callback">Action to be executed between each wait period.</param>
+    public async Task WaitForCompletionAsync(int timeBetweenCallbacks = 64, Action? callback = null)
+    {
+        while (_numQueuedItems > 0)
+        { 
+            await Task.Delay(timeBetweenCallbacks);
+            callback?.Invoke();
+        }
     }
 
     private void FileLoadThread(object? obj)
@@ -149,6 +172,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
             finally
             {
                 item.data.Dispose();
+                _numItemsProcessed += 1;
                 Interlocked.Decrement(ref _numQueuedItems);
                 Interlocked.Decrement(ref _numItemsProcessing);
             }

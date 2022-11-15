@@ -1,4 +1,5 @@
-﻿using CriFsLib.GUI.Model;
+﻿using ByteSizeLib;
+using CriFsLib.GUI.Model;
 using CriFsV2Lib;
 using CriFsV2Lib.Encryption.Game;
 using CriFsV2Lib.Utilities;
@@ -7,9 +8,12 @@ using Reloaded.WPF.MVVM;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace CriFsLib.GUI.ViewModel;
 
@@ -20,25 +24,27 @@ public class MainPageViewModel : ObservableObject
     public IList SelectedItems { get; set; } = new List<CpkFileModel>();
     public CpkFileModel[] Files { get; set; } = Array.Empty<CpkFileModel>();
     public string CurrentFilePath { get; set; } = string.Empty;
+    public string Completion { get; set; } = "0.0% / 00:00";
+    public string NumItems { get; set; } = "0 Items";
 
-    internal void Extract()
+    internal async Task Extract()
     {
         if (!TryGetOutputFolder(out var folderPath))
             return; 
 
-        ExtractItems(folderPath, SelectedItems.Cast<CpkFileModel>().ToArray());
+        await ExtractItemsAsync(folderPath, SelectedItems.Cast<CpkFileModel>().ToArray());
     }
 
-    internal void ExtractAll()
+    internal async Task ExtractAllAsync()
     {
         if (!TryGetOutputFolder(out var folderPath))
             return;
 
-        ExtractItems(folderPath, Files.ToArray()); // clone as we sort the array.
+        await ExtractItemsAsync(folderPath, Files.ToArray()); // clone as we sort the array.
         ArrayRental.Reset(); // Don't keep around in memory in case user leaves application idle.
     }
 
-    private void ExtractItems(string folder, CpkFileModel[] files)
+    private async Task ExtractItemsAsync(string folder, CpkFileModel[] files)
     {
         // TODO: Selectable crypto function when we add more.
         // Sort in ascending order, hopefully will reduce seeks.
@@ -46,11 +52,19 @@ public class MainPageViewModel : ObservableObject
         using var extractor = new BatchFileExtractor<CpkFileExtractorItemModel>(CurrentFilePath, P5RCrypto.DecryptionFunction);
         for (int x = 0; x < files.Length; x++)
         {
-            ref var file = ref files[x];
+            var file = files[x];
             extractor.QueueItem(new CpkFileExtractorItemModel(Path.Combine(folder, file.FullPath), file));
         }
 
-        extractor.WaitForCompletion();
+        var maxItems = files.Length;
+        var watch = Stopwatch.StartNew();
+        await extractor.WaitForCompletionAsync(125, () =>
+        {
+            var percentage = (float)extractor.ItemsProcessed / maxItems;
+            Completion = $"{percentage:#0.0%} / {watch.Elapsed:mm\\:ss}";
+        });
+
+        Completion = $"100.0% / {watch.Elapsed:mm\\:ss}";
     }
 
     internal void OpenCpk(string filePath)
@@ -58,6 +72,7 @@ public class MainPageViewModel : ObservableObject
         using var fileStream = new FileStream(filePath, FileMode.Open);
         var files    = CpkHelper.GetFilesFromStream(fileStream);
         var newFiles = GC.AllocateUninitializedArray<CpkFileModel>(files.Length);
+        long totalSizeBytes = 0;
 
         for (int x = 0; x < files.Length; x++)
         {
@@ -67,10 +82,12 @@ public class MainPageViewModel : ObservableObject
                 : file.FileName;
 
             newFiles[x] = new CpkFileModel(file, fullPath);
+            totalSizeBytes += file.ExtractSize;
         }
 
         CurrentFilePath = filePath;
         Files = newFiles;
+        NumItems = $"{newFiles.Length} Items / {ByteSize.FromBytes(totalSizeBytes):#.##}";
         ShowDragDropText = Visibility.Collapsed;
         ShowItemList = Visibility.Visible;
     }

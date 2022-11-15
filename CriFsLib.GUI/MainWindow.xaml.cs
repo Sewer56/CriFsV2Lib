@@ -62,5 +62,5 @@ public partial class MainWindow : ReloadedWindow
 
     private void Extract_Click(object sender, RoutedEventArgs e) => ViewModel.Extract();
 
-    private void ExtractAll_Click(object sender, RoutedEventArgs e) => ViewModel.ExtractAll();
+    private void ExtractAll_Click(object sender, RoutedEventArgs e) => ViewModel.ExtractAllAsync();
 }

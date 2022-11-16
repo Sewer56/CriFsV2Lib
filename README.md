@@ -145,5 +145,4 @@ Credits
 =========
 
 - Aforementioned authors in 'Resources' section.  
-- Sano Shin'ichirou, yeah321: Cultured unit test data for decompression testing.  [Small Extract from Visual Novel.]  
 - Lipsum/Zarroboogs (Original P5R Encryption function for reference)

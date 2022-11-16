@@ -66,7 +66,7 @@ public class TableReadTests
         fixed (byte* tableDataPtr = &tableData[0])
         {
             Assert.True(TocFinder.FindToc(tableDataPtr, out var tocOffset, out var contentOffset));
-            Assert.Equal(178688, tocOffset);
+            Assert.Equal(174080, tocOffset);
             Assert.Equal(2048, contentOffset);
         }
     }
@@ -90,8 +90,8 @@ public class TableReadTests
             Assert.Equal(2048, files[0].FileOffset);
             
             Assert.Equal("Text-Compressed.txt", files[2].FileName);
-            Assert.Equal(7044, files[2].FileSize);
-            Assert.Equal(15035, files[2].ExtractSize);
+            Assert.Equal(2484, files[2].FileSize);
+            Assert.Equal(3592, files[2].ExtractSize);
             Assert.Equal(171520, files[2].FileOffset);
         }
     }

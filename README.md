@@ -29,17 +29,18 @@ A basic standalone WPF application is also available for testing.
 Usage
 =====
 
-High Level API is available in the `CpkHelper` class.  
+High Level API is available in the `CriFsLib` class.  
 
-## Get File Info  
+## Get Files in CPK  
 ```csharp
 using var fileStream = new FileStream(Assets.SampleCpkFile, FileMode.Open);
-var files = CpkHelper.GetFilesFromStream(fileStream);
+using var reader = CriFsLib.Instance.CreateCpkReader(fileStream, true);
+var files = reader.GetFiles();
 ```
 
 ## Extract Individual File  
 ```csharp
-using var file = CpkHelper.ExtractFile(files[0], fileStream)
+using var file = reader.ExtractFile(files[0])
 // Access via file.Span
 ```
 
@@ -52,9 +53,10 @@ The batch extractor can be used to efficiently extract multiple files in a multi
 ⚠️ Uses heavy array pooling, risk of address space starvation in 32-bit processes!!  
 
 ```csharp
-using var extractor = new BatchFileExtractor<ItemModel>(CpkPath);
+
+using var extractor = CriFsLib.Instance.CreateBatchExtractor<ItemModel>(CpkPath);
 for (int x = 0; x < files.Length; x++)
-    extractor.QueueItem(new CpkFileExtractorItemModel(Path.Combine(folder, files[x].FullPath), files[x]));
+    extractor.QueueItem(new ItemModel(Path.Combine(folder, files[x].FullPath), files[x]));
 
 extractor.WaitForCompletion();
 ```

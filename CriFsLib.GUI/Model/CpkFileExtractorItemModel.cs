@@ -1,5 +1,5 @@
-﻿using CriFsV2Lib.Structs;
-using CriFsV2Lib.Utilities;
+﻿using CriFsV2Lib.Definitions.Interfaces;
+using CriFsV2Lib.Definitions.Structs;
 
 namespace CriFsLib.GUI.Model;
 

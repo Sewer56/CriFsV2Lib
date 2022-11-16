@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 
-namespace CriFsV2Lib.Utilities;
+namespace CriFsV2Lib.Definitions.Utilities;
 
 /// <summary>
 /// Represents an individual borrowed array from the runtime.
@@ -78,11 +78,6 @@ public struct ArrayRental : IDisposable
     public int Count => _count;
 
     /// <summary>
-    /// Returns a reference to the first element.
-    /// </summary>
-    public ref byte FirstElement => ref GetFirstElement();
-
-    /// <summary>
     /// Returns the array to the pool.
     /// </summary>
     public void Dispose()
@@ -90,9 +85,4 @@ public struct ArrayRental : IDisposable
         if (_canDispose)
             _dataPool.Return(_data, false);
     }
-
-    /// <summary>
-    /// Returns a reference to the first element.
-    /// </summary>
-    private ref byte GetFirstElement() => ref MemoryMarshal.GetArrayDataReference(_data);
 }

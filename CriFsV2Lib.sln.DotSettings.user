@@ -1,4 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\sewer\AppData\Local\JetBrains\Rider2022.3\resharper-host\temp\Rider\vAny\CoverageData\_CriFsV2Lib.272200049\Snapshot\snapshot.utdcvr</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=04f41a72_002Dcffd_002D4901_002D9d26_002D4a365a11bf02/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="DecompressesCorrectly" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CompressionTests.Model_DecompressesCorrectly&lt;/TestId&gt;&#xD;
@@ -16,5 +17,8 @@
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests.ExtractFile&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests.ExtractFile_Uncompressed&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.Game.P5R&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CpkHelperTests.GetFileInfo_FromStream&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.CpkHelperTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::BBC10F7B-2669-4F77-9E61-80231043311A::net7.0::CriFsV2Lib.Tests.HighLevelApiTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -15,6 +15,9 @@ using System.Runtime;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using CriFsV2Lib.Definitions.Structs;
+using CriFsV2Lib.Definitions.Utilities;
+using CriFsV2Lib.Utilities.Parsing;
 
 namespace CriFsLib.GUI.ViewModel;
 
@@ -82,7 +85,7 @@ public class MainPageViewModel : ObservableObject
 
         for (int x = 0; x < files.Length; x++)
         {
-            CriFsV2Lib.Structs.CpkFile file = files[x];
+            CpkFile file = files[x];
             var fullPath = !string.IsNullOrEmpty(file.Directory)
                 ? Path.Combine(file.Directory, file.FileName)
                 : file.FileName;

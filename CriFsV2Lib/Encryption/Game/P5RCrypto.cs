@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
-using static CriFsV2Lib.CpkHelper;
+using CriFsV2Lib.Definitions;
+using CriFsV2Lib.Definitions.Structs;
+using static CriFsV2Lib.Utilities.Parsing.CpkHelper;
 
 namespace CriFsV2Lib.Encryption.Game;
 

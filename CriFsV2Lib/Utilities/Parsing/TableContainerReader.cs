@@ -1,7 +1,6 @@
 ﻿using CriFsV2Lib.Encryption;
-using CriFsV2Lib.Utilities;
 
-namespace CriFsV2Lib;
+namespace CriFsV2Lib.Utilities.Parsing;
 
 /// <summary>
 /// Class that reads the table of contents.

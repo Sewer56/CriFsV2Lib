@@ -1,6 +1,7 @@
 ﻿using CriFsV2Lib.Utilities;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using CriFsV2Lib.Definitions.Utilities;
 
 namespace CriFsV2Lib.Compression;
 

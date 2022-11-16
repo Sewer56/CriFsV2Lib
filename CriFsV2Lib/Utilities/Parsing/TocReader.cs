@@ -1,9 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Text;
+using CriFsV2Lib.Definitions.Structs;
 using CriFsV2Lib.Structs;
-using CriFsV2Lib.Utilities;
 
-namespace CriFsV2Lib;
+namespace CriFsV2Lib.Utilities.Parsing;
 
 /// <summary>
 /// Reader of the CRI Table of Contents.
@@ -11,7 +10,7 @@ namespace CriFsV2Lib;
 public static class TocReader
 {
     /// <summary>
-    /// Finds the table of content
+    /// Finds the table of content from a CPK file.
     /// </summary>
     /// <param name="header">Pointer to CRI Table header.</param>
     /// <param name="contentOffset">Offset of the raw data inside the TOC. This is used to get final file pointer inside file.</param>

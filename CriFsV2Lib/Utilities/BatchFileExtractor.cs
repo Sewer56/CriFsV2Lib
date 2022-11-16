@@ -2,14 +2,19 @@
 using CriFsV2Lib.Encryption.Game;
 using CriFsV2Lib.Structs;
 using System.Collections.Concurrent;
-using static CriFsV2Lib.CpkHelper;
+using CriFsV2Lib.Definitions;
+using CriFsV2Lib.Definitions.Interfaces;
+using CriFsV2Lib.Definitions.Structs;
+using CriFsV2Lib.Definitions.Utilities;
+using CriFsV2Lib.Utilities.Parsing;
+using static CriFsV2Lib.Utilities.Parsing.CpkHelper;
 
 namespace CriFsV2Lib.Utilities;
 
 /// <summary>
 /// Utility for efficient batch extracting of items.
 /// </summary>
-public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorItem
+public class BatchFileExtractor<T> : IDisposable, IBatchFileExtractor<T> where T : IBatchFileExtractorItem
 {
     private const int SleepTime = 16;
     private static readonly int MaxNumItemsToProcess = IntPtr.Size == 4 ? Math.Min(2, Environment.ProcessorCount) : Environment.ProcessorCount;
@@ -197,20 +202,4 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
             this.data = data;
         }
     }
-}
-
-/// <summary>
-/// Base interface used by items that can be queued to batch extractor.
-/// </summary>
-public interface IBatchFileExtractorItem
-{
-    /// <summary>
-    /// Full path to where the file should be extracted to.
-    /// </summary>
-    public string FullPath { get; set; }
-
-    /// <summary>
-    /// Details of the file to be extracted.
-    /// </summary>
-    public CpkFile File { get; }
 }

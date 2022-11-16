@@ -1,6 +1,7 @@
 ﻿using ByteSizeLib;
 using CriFsV2Lib.Structs;
 using System.IO;
+using CriFsV2Lib.Definitions.Structs;
 
 namespace CriFsLib.GUI.Model;
 

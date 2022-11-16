@@ -1,8 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CriFsV2Lib.Structs;
-using static CriFsV2Lib.Constants;
 
-namespace CriFsV2Lib;
+namespace CriFsV2Lib.Utilities.Parsing;
 
 /// <summary>
 /// Class that can be used to parse the CPK's main CRI Table to find the table of contents CRI Table.

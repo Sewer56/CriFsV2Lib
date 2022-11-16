@@ -1,4 +1,4 @@
-﻿namespace CriFsV2Lib.Structs;
+﻿namespace CriFsV2Lib.Definitions.Structs;
 
 /// <summary>
 /// Encapsulates all known information about a file.

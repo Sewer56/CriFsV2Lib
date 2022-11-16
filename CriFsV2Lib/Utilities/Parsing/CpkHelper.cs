@@ -1,8 +1,9 @@
 ﻿using CriFsV2Lib.Compression;
-using CriFsV2Lib.Structs;
-using CriFsV2Lib.Utilities;
+using CriFsV2Lib.Definitions;
+using CriFsV2Lib.Definitions.Structs;
+using CriFsV2Lib.Definitions.Utilities;
 
-namespace CriFsV2Lib;
+namespace CriFsV2Lib.Utilities.Parsing;
 
 /// <summary>
 /// High level APIs for reading data from CPKs.
@@ -130,12 +131,4 @@ public static class CpkHelper
         var tocPtr = dataPtr + tocOffset + TableContainerReader.TableContainerSize;
         return TocReader.ReadToc(tocPtr, contentOffset);
     }
-
-    /// <summary>
-    /// Defines a function that will perform encryption in place.
-    /// </summary>
-    /// <param name="file">The file which will be decrypted.</param>
-    /// <param name="dataPtr">Pointer to the data to decrypt.</param>
-    /// <param name="dataLength">Length of the data to decrypt.</param>
-    public unsafe delegate void InPlaceDecryptionFunction(in CpkFile file, byte* dataPtr, int dataLength);
 }

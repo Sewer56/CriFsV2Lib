@@ -14,12 +14,21 @@ public class CriFsLib : ICriFsLib
     /// Singleton instance of this class.
     /// </summary>
     public static readonly CriFsLib Instance = new();
+
+    private InPlaceDecryptionFunction _decrypt;
     
     /// <inheritdoc />
-    public ICriFsLibUtilities Utilities { get; } = new CriFsLibUtilities();    
-    
+    public ICriFsLibUtilities Utilities { get; } = new CriFsLibUtilities();
+
     /// <inheritdoc />
-    public ICpkReader CreateCpkReader(Stream cpkStream, bool ownsStream, InPlaceDecryptionFunction? decrypt = null) => new CpkReader(cpkStream, ownsStream, decrypt);
+    public void SetDefaultEncryptionFunction(InPlaceDecryptionFunction function) => _decrypt = function;
+
+    /// <inheritdoc />
+    public ICpkReader CreateCpkReader(Stream cpkStream, bool ownsStream, InPlaceDecryptionFunction? decrypt = null)
+    {
+        decrypt ??= _decrypt;
+        return new CpkReader(cpkStream, ownsStream, decrypt);
+    }
 
     /// <inheritdoc />
     public InPlaceDecryptionFunction? GetKnownDecryptionFunction(KnownDecryptionFunction decryptFunc)
@@ -34,6 +43,7 @@ public class CriFsLib : ICriFsLib
     /// <inheritdoc />
     public IBatchFileExtractor<T> CreateBatchExtractor<T>(string sourceCpkPath, InPlaceDecryptionFunction? decrypt = null) where T : IBatchFileExtractorItem
     {
+        decrypt ??= _decrypt;
         return new BatchFileExtractor<T>(sourceCpkPath, decrypt);
     }
 }

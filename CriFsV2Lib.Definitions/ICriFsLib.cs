@@ -14,6 +14,12 @@ public interface ICriFsLib
     public ICriFsLibUtilities Utilities { get; }
 
     /// <summary>
+    /// Sets the default in place decryption function to be used when one isn't supplied.
+    /// </summary>
+    /// <param name="function">The function to use.</param>
+    public void SetDefaultEncryptionFunction(InPlaceDecryptionFunction function);
+    
+    /// <summary>
     /// Creates a reader that can be used to read a CPK file.
     /// </summary>
     /// <param name="cpkStream">Stream which starts at the beginning of a CPK file.</param>

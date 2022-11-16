@@ -16,7 +16,7 @@ public struct CriString
 
     /// <summary>
     /// Gets the address of the string contained here.
-    /// Assumes <see cref="HasName"/> == true.
+    /// Assumes <see cref="CriColumnFlags.HasName"/> == true.
     /// </summary>
     /// <param name="stringPoolPtr">Pointer to the address of the first character in the string section/pool.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

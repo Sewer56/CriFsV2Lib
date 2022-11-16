@@ -36,7 +36,7 @@ public struct CriColumnFlagsUnion
 
     /// <summary>
     /// Gets the address of the string contained here.
-    /// Assumes <see cref="HasName"/> == true.
+    /// Assumes <see cref="HasFlag"/>(Name) == true.
     /// </summary>
     /// <param name="thisPtr">Pointer to the 'this' instance.</param>
     /// <param name="stringPoolPtr">Pointer to the address of the first character in the string section/pool.</param>
@@ -141,6 +141,7 @@ public enum CriColumnFlags : byte
 /// </summary>
 public enum CriColumnType : byte
 {
+#pragma warning disable CS1591
     Byte = 0,
     SByte = 1,
     UInt16 = 2,
@@ -154,4 +155,5 @@ public enum CriColumnType : byte
     String = 10,
     RawData = 11,
     Guid = 12,
+#pragma warning restore CS1591
 }

@@ -13,6 +13,8 @@
         <RepositoryUrl>https://github.com/Sewer56/CriFsV2Lib</RepositoryUrl>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Version>1.0.1</Version>
     </PropertyGroup>
 
 </Project>

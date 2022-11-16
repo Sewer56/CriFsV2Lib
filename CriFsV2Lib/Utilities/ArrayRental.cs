@@ -9,7 +9,6 @@ namespace CriFsV2Lib.Utilities;
 /// <summary>
 /// Represents a temporary array rental from the runtime's ArrayPool.
 /// </summary>
-/// <typeparam name="T">Type of element to be rented from the runtime.</typeparam>
 public struct ArrayRental : IDisposable
 {
     /// <summary>
@@ -54,6 +53,7 @@ public struct ArrayRental : IDisposable
     /// Rents an array of bytes from the arraypool.
     /// </summary>
     /// <param name="count">Needed amount of bytes.</param>
+    /// <param name="canDispose">True if this rental can be disposed, set false for internal use only.</param>
     private ArrayRental(int count, bool canDispose)
     {
         _data = _dataPool.Rent(count);

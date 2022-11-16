@@ -14,6 +14,7 @@ public struct CriStringPool
     private string _lastString = null!;
     private int _lastOffset = -1;
 
+    /// <summary/>
     public CriStringPool() { }
 
     /// <summary>

@@ -9,7 +9,7 @@ namespace CriFsV2Lib.Encryption.Game;
 
 /// <summary>
 /// Provides decryption support in 
-/// - Persona 5 Royal (PS4 JPN & PC)
+/// - Persona 5 Royal (PS4 JPN and PC)
 /// </summary>
 public static unsafe class P5RCrypto
 {
@@ -47,6 +47,12 @@ public static unsafe class P5RCrypto
     /// </summary>
     public static InPlaceDecryptionFunction DecryptionFunction => DecryptionFn;
 
+    /// <summary>
+    /// Decrypts the input file using the XOR based algorithm used in Persona 5 Royal.
+    /// The decryption is done in place.  
+    /// </summary>
+    /// <param name="dataPtr">Pointer to start of data to decrypt.</param>
+    /// <param name="dataLength">Length of data to decrypt.</param>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static void DecryptInPlace(byte* dataPtr, int dataLength)
     {

@@ -72,6 +72,12 @@ public static unsafe class CriLayla
     */
     
     // Note: SkipLocalsInit would be nice but it ruins loop alignment
+    
+    /// <summary>
+    /// Decompresses a compressed file to a byte array.
+    /// </summary>
+    /// <param name="input">Pointer to start of compressed data (CRILAYLA header).</param>
+    /// <returns>Byte array of the file after decompression.</returns>
     public static byte[] DecompressToArray(byte* input)
     {
         // Read sizes from header.
@@ -86,6 +92,11 @@ public static unsafe class CriLayla
         return result;
     }
 
+    /// <summary>
+    /// Decompresses a compressed file to a pooled byte array.
+    /// </summary>
+    /// <param name="input">Pointer to start of compressed data (CRILAYLA header).</param>
+    /// <returns>Pooled array of the file after decompression, please dispose after you're done with it.</returns>
     public static ArrayRental DecompressToArrayPool(byte* input)
     {
         // Read sizes from header.

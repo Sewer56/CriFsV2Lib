@@ -40,6 +40,9 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
     private FileStream _sourceCpkStream;
     private InPlaceDecryptionFunction? _decrypt;
 
+    /// <summary/>
+    /// <param name="sourceCpkPath">Full path to the source CPK where files are extracted from.</param>
+    /// <param name="decrypt">The decryption function to use.</param>
     public BatchFileExtractor(string sourceCpkPath, InPlaceDecryptionFunction? decrypt = null)
     {
         _shutdownToken = new CancellationTokenSource();
@@ -51,6 +54,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
         this._decrypt = decrypt;
     }
 
+    /// <summary/>
     ~BatchFileExtractor() => Dispose();
 
     /// <summary>
@@ -76,6 +80,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
     /// <summary>
     /// Waits for completion of current items in a blocking fashion.
     /// </summary>
+    /// <param name="timeBetweenCallbacks">Minimum time taken between individual callbacks.</param>
     /// <param name="callback">Action to be executed between each wait period.</param>
     public void WaitForCompletion(int timeBetweenCallbacks = 64, Action? callback = null)
     {
@@ -89,6 +94,7 @@ public class BatchFileExtractor<T> : IDisposable where T : IBatchFileExtractorIt
     /// <summary>
     /// Waits for completion of current items in a non-blocking fashion.
     /// </summary>
+    /// <param name="timeBetweenCallbacks">Minimum time taken between individual callbacks.</param>
     /// <param name="callback">Action to be executed between each wait period.</param>
     public async Task WaitForCompletionAsync(int timeBetweenCallbacks = 64, Action? callback = null)
     {

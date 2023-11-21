@@ -28,26 +28,27 @@ public static class TocReader
         int extractSizeColumnIndex = -1;
         int fileOffsetColumnIndex = -1;
         int userStringColumnIndex = -1;
-        
+
         // Parse out the column data to find fields for the file info we want.
         // Not the most readable thing but is all super inlined for performance!
         var stringPoolPtr = header + metadata.StringPoolOffset;
         var columnsFlags = stackalloc CriColumnFlagsUnion[metadata.ColumnCount];
         var columnPtr    = metadata.GetFirstColumnPtr(header);
-        
+        var defaults     = stackalloc byte*[metadata.ColumnCount];
+
         for (int x = 0; x < metadata.ColumnCount; x++)
         {
             // Read the column.
             var columnData = (CriColumnFlagsUnion*)columnPtr;
             int columnSize = 1;
             columnsFlags[x] = *columnData;
-            
+
             // Check if this is one of our wanted columns.
             if (columnData->HasFlag(CriColumnFlags.HasName))
             {
                 columnSize += sizeof(CriString);
                 var stringAddress = columnData->GetStringAddress(columnData, stringPoolPtr);
-                
+
                 // Check if our desired offsets.
                 if (Constants.Fields.IsDirName(stringAddress)) dirNameColumnIndex = x;
                 else if (Constants.Fields.IsFileName(stringAddress)) fileNameColumnIndex = x;
@@ -56,49 +57,53 @@ public static class TocReader
                 else if (Constants.Fields.IsFileOffset(stringAddress)) fileOffsetColumnIndex = x;
                 else if (Constants.Fields.IsUserString(stringAddress)) userStringColumnIndex = x;
             }
-            
+
             if (columnData->HasFlag(CriColumnFlags.HasDefaultValue))
+            {
+                defaults[x] = columnPtr + columnSize;
                 columnSize += columnData->GetValueLength();
+            }
 
             columnPtr += columnSize;
         }
-        
+
         // Let's read the data from the rows now.
         // CPK header has only one row, so we read all column data.
         var encoding = metadata.GetEncoding(header);
-        
+
         var userStringPool = new CriStringPool();
         var namePool = new CriStringPool();
         var baseRowPtr = metadata.GetFirstRowPtr(header);
         var result = new CpkFile[metadata.RowCount];
-        
+
         for (int x = 0; x < result.Length; x++)
         {
             var currentRowPtr = baseRowPtr + (x * metadata.RowSizeBytes);
             ref var file = ref result[x];
-            
+
             for (int y = 0; y < metadata.ColumnCount; y++)
             {
                 var column = columnsFlags[y];
-
-                // Having row storage here is implied, no need to check for flag.
-                // Technically speaking, those strings can have default values; however with testing
-                // and knowing the context of wh at these values are, we can ignore them. Empty string will be just fine.
+                byte* valuePtr;
                 if (column.HasFlag(CriColumnFlags.IsRowStorage))
-                {
-                    if (y == dirNameColumnIndex)
-                        file.Directory = namePool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
-                    else if (y == fileNameColumnIndex)
-                        file.FileName = namePool.GetWithoutPooling(stringPoolPtr, (CriString*)currentRowPtr, encoding);
-                    else if (y == fileSizeColumnIndex)
-                        file.FileSize = column.ReadNumberInt(currentRowPtr);
-                    else if (y == extractSizeColumnIndex)
-                        file.ExtractSize = column.ReadNumberInt(currentRowPtr);
-                    else if (y == fileOffsetColumnIndex)
-                        file.FileOffset = column.ReadNumberLong(currentRowPtr) + contentOffset;
-                    else if (y == userStringColumnIndex)
-                        file.UserString = userStringPool.Get(stringPoolPtr, (CriString*)currentRowPtr, encoding);
-                }
+                    valuePtr = currentRowPtr;
+                else if (column.HasFlag(CriColumnFlags.HasDefaultValue))
+                    valuePtr = defaults[y];
+                else
+                    continue;
+
+                if (y == dirNameColumnIndex)
+                    file.Directory = namePool.Get(stringPoolPtr, (CriString*)valuePtr, encoding);
+                else if (y == fileNameColumnIndex)
+                    file.FileName = namePool.GetWithoutPooling(stringPoolPtr, (CriString*)valuePtr, encoding);
+                else if (y == fileSizeColumnIndex)
+                    file.FileSize = column.ReadNumberInt(valuePtr);
+                else if (y == extractSizeColumnIndex)
+                    file.ExtractSize = column.ReadNumberInt(valuePtr);
+                else if (y == fileOffsetColumnIndex)
+                    file.FileOffset = column.ReadNumberLong(valuePtr) + contentOffset;
+                else if (y == userStringColumnIndex)
+                    file.UserString = userStringPool.Get(stringPoolPtr, (CriString*)valuePtr, encoding);
 
                 if (column.HasFlag(CriColumnFlags.IsRowStorage))
                     currentRowPtr += column.GetValueLength();

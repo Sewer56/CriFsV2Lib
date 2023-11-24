@@ -76,7 +76,7 @@ public unsafe ref struct CriTableMetadata
     /// Gets the encoding for this file.
     /// </summary>
     /// <param name="header">Header of the file.</param>
-    public Encoding GetEncoding(byte* header) => *(header + 0x9) == 1 ? Shift_JIS : Encoding.UTF8;
+    public Encoding GetEncoding(byte* header) => *(header + 0x9) == 0 ? Shift_JIS : Encoding.UTF8;
 
     /// <summary>
     /// Returns the pointer to the first column.

@@ -17,7 +17,7 @@ public partial class MainWindow : ReloadedWindow
 
     private CollectionViewSource _viewSource;
 
-    public MainWindow()
+    public MainWindow(string[] args)
     {
         ViewModel = new MainPageViewModel();
         InitializeComponent();
@@ -25,6 +25,9 @@ public partial class MainWindow : ReloadedWindow
         var manipulator = new DictionaryResourceManipulator(this.Contents.Resources);
         _viewSource = manipulator.Get<CollectionViewSource>("FilteredItems");
         _viewSource.Filter += FilterItems;
+
+        if (args.Length > 0)
+            ViewModel.OpenCpk(args[0]);
     }
 
     private void FilterItems(object sender, FilterEventArgs e)
